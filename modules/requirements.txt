@@ -1,0 +1,8 @@
+Flask
+pandas
+matplotlib
+numpy
+Pillow
+pygame
+scipy
+seaborn

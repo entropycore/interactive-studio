@@ -1,0 +1,552 @@
+/* =========================================
+   1. GLOBAL & BASICS
+   ========================================= */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+    color: #333;
+    overflow-x: hidden; /* باش مايكونش سكرول فالجناب وقت الحركة */
+    margin: 0;
+    padding: 0;
+}
+
+/* =========================================
+   2. HERO SECTION (ESPACE TEXT)
+   ========================================= */
+/* =========================================
+   HERO SECTION (Background Photo Style)
+   ========================================= */
+.hero-header {
+    height: 90vh; /* كياخد 90% من طول الشاشة */
+    width: 100%;
+    
+    /* الخصائص باش التصويرة تجي مقادة */
+    background-size: cover;       /* تعمر ليكرون */
+    background-position: center;  /* تجي فالوسط */
+    background-attachment: fixed; /* Parallax Effect: كتبقى فيكسي ملي كتهبط */
+    background-repeat: no-repeat;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    margin-bottom: 100px;
+}
+
+/* الكتابة بالبيض (White) */
+.main-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #ffffff; /* بيض */
+    margin-bottom: 20px;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.6); /* ظل للكتابة */
+    animation: fadeInDown 1s ease-out;
+}
+
+.sub-title {
+    font-size: 1.2rem;
+    color: #e0e0e0; /* رمادي فاتح */
+    margin-bottom: 40px;
+    font-weight: 300;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}
+
+/* السهم حتى هو بيض */
+.scroll-down {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+    opacity: 0.9;
+    font-size: 0.9rem;
+    color: #ffffff;
+}
+/* Keyframes */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
+    40% {transform: translateX(-50%) translateY(-10px);}
+    60% {transform: translateX(-50%) translateY(-5px);}
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   3. MODERN NAVBAR
+   ========================================= */
+.modern-navbar {
+    width: 100%;
+    height: 80px;
+    background: #fdfbfb;
+    color: rgb(240, 238, 238);
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-family: 'Poppins', sans-serif;
+}
+
+.nav-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.nav-logo { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* نفس خط الـ Footer */
+    font-size: 1.6rem;       /* كبرناه شوية */
+    font-weight: 800;        /* زدنا فالغلظ باش يولي Extra Bold */
+    color: #000; 
+    text-decoration: none; 
+    letter-spacing: 1px; 
+}
+.nav-menu { display: flex; list-style: none; margin: 0; padding: 0; gap: 30px; }
+.nav-menu li a { color: rgba(6, 5, 5, 0.7); text-decoration: none; font-size: 1rem; position: relative; transition: color 0.3s; }
+.nav-menu li a:hover, .nav-menu li a.active { color: rgb(5, 5, 5); }
+.nav-menu li a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 0; background-color: rgb(0, 0, 0); transition: width 0.3s ease; }
+.nav-menu li a.active::after, .nav-menu li a:hover::after { width: 100%; }
+
+/* Search Bar */
+.search-box { position: relative; display: flex; align-items: center; }
+.search-btn { background: none; border: none; color: rgb(0, 0, 0); cursor: pointer; font-size: 1.2rem; padding: 5px; transition: transform 0.3s; }
+.search-btn:hover { transform: scale(1.1); }
+.search-input { width: 0; border: none; background: transparent; color: rgb(0, 0, 0); font-size: 1rem; border-bottom: 1px solid rgb(12, 12, 12); padding: 5px 0; outline: none; transition: width 0.4s ease, padding 0.4s ease; position: absolute; right: 40px; opacity: 0; }
+.search-box.active .search-input { width: 200px; padding-right: 10px; opacity: 1; }
+
+
+
+
+/* --- SEARCH DROPDOWN (PERFECT GLASS & ALIGNMENT) --- */
+.search-results {
+    position: absolute;
+    /* 🔥 قربناها للبار: كانت 50px دابا 35px (على حساب علو البار) */
+    top: 45px;
+    
+    /* 🔥 المحاذاة: نفس بلاصة Input (40px من ليمن) */
+    right: 40px;
+    
+    /* 🔥 العرض: نفس عرض Input Active (200px + شوية د Padding) */
+    width: 210px;
+    
+    /* 🔥 تأثير الزجاج الحقيقي (Frosted Glass) 🔥 */
+    /* قللنا الشفافية ديال اللون الأبيض باش يبان بلور كثر */
+    background: rgba(255, 255, 255, 0.25); 
+    backdrop-filter: blur(20px);            /* زدنا فالضبابية */
+    -webkit-backdrop-filter: blur(20px);
+    
+    /* إطار رقيق وأبيض باش يحدد الزجاج */
+    border: 1px solid rgba(255, 255, 255, 0.5); 
+    border-radius: 12px;
+    
+    /* ضل خفيف بزاف باش تبان طايزة */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    
+    list-style: none;
+    padding: 8px;
+    margin: 0;
+    display: none;
+    z-index: 10000;
+    
+    /* حركة ناعمة */
+    animation: fadeInSlide 0.3s ease-in-out;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.search-results li {
+    margin-bottom: 4px;
+}
+
+.search-results li a {
+    display: block;
+    padding: 10px 15px;
+    /* الكتابة كحلة باش تبان فوق الزجاج */
+    color: #1a1a1a; 
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+/* ملي دوز الماوس: كيولي أبيض ناصع */
+.search-results li a:hover {
+    background: rgba(255, 255, 255, 0.7); 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transform: translateX(3px);
+}
+
+
+
+/* =========================================
+   4. BENTO GRID SYSTEM
+   ========================================= */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 150px);
+    gap: 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Base Card Style */
+.bento-box {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: #333;
+    position: relative;
+    overflow: hidden;
+}
+
+.bento-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    background-color: #ffffff;
+    border-color: #333;
+    z-index: 5;
+}
+
+.bento-box h3 { font-weight: 800; font-size: 1.5rem; margin-bottom: 10px; }
+
+/* Grid Sizes */
+.span-2x2 { grid-column: span 2; grid-row: span 2; font-size: 1.1em; background-color: #e8f0fe; }
+.span-1x2 { grid-column: span 1; grid-row: span 2; }
+.span-2x1 { grid-column: span 2; grid-row: span 1; }
+.span-1x1 { grid-column: span 1; grid-row: span 1; }
+.footer-box { background-color: #212529 !important; color: #fff !important; }
+.span-4x1 { 
+    grid-column: span 4; /* كياخد 4 ديال الأعمدة (السطر كامل) */
+    grid-row: span 1; 
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .bento-grid { display: flex; flex-direction: column; }
+    .bento-box { min-height: 200px; }
+}
+
+/* =========================================
+   5. SPECIFIC CARD STYLES
+   ========================================= */
+
+/* --- A. Sketch Pad --- */
+.sketch-card { border: 0px solid #6200ea !important; padding: 0 !important; }
+.glass-container {
+    position: absolute; bottom: 25px; right: 25px; z-index: 1;
+    background: transparent; padding: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.glass-container h3 {
+    font-family: "Dancing Script", cursive; font-weight: 800; font-size: 3rem;
+    color: white; margin: 0; line-height: 1; text-shadow: 2px 4px 8px rgba(0,0,0,0.8);
+}
+.sketch-card:hover .glass-container { transform: translateY(-10px) scale(1.1); }
+
+/* --- B. Data Viz --- */
+.data-card { padding: 0 !important; border: none !important; }
+.data-content {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 1; width: 100%; text-align: center;
+}
+.data-content h3 { font-size: 2rem; color: white; font-weight: 800; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+.data-content p { color: #f8f9fa; font-size: 1rem; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+.data-card:hover .data-content { transform: translate(-50%, -50%) scale(1.1); }
+
+/* Common Video Style for Sketch & Data */
+.card-video {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover; z-index: 0; filter: brightness(0.85);
+    transition: transform 0.5s ease;
+}
+.sketch-card:hover .card-video, .data-card:hover .card-video { transform: scale(1.05); }
+
+/* --- C. Gallery Card (FIXED FOR HTML INLINE STYLE) --- */
+.gallery-card {
+    position: relative; overflow: hidden; padding: 0 !important;
+    border: none !important; background-color: #2c2c2c;
+}
+.gallery-card .card-bg {
+    position: absolute; /* ضروري باش HTML style يخدم */
+    top: 0; left: 0; width: 100%; height: 100%;
+    
+    /* Background properties لي كتحكم فالتصويرة لي جاية من HTML */
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    z-index: 0; filter: brightness(0.9); transition: transform 0.5s ease;
+}
+.gallery-content {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); z-index: 1;
+    text-align: center; width: 100%;
+}
+.gallery-content h3 { color: white; font-size: 1.6rem; font-weight: 700; text-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+.gallery-content p { color: #eee; font-size: 0.9rem; margin: 0; opacity: 0.9; }
+.gallery-card:hover .card-bg { transform: scale(1.05); }
+
+/* --- D. Notes Card --- */
+.notes-card { padding: 0 !important; border: none !important; }
+.notes-card .card-bg {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.5s ease; filter: brightness(0.7);
+}
+.notes-content {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 1; text-align: center; width: 100%;
+}
+.notes-content h3 { color: white; font-weight: 700; font-size: 1.6rem; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+.notes-content p { font-size: 0.9rem; color: #ddd; margin: 0; }
+.notes-card:hover .card-bg { transform: scale(1.1); filter: brightness(0.8); }
+
+ /* --- LAUNCH CARD (VIDEO ZOOM FIX) --- */
+.launch-card {
+    position: relative;
+    overflow: hidden; /* ضروري: أي حاجة خارج الصندوق كتقطع */
+    background: #000;
+    height: 150px;
+}
+
+.launch-video {
+    width: 100%;
+    height: 100%;
+    
+    /* 1. كيعمر الصندوق */
+    object-fit: cover; 
+    
+    /* 2. كيركز على الوسط (فين كاينة الرسمة) */
+    object-position: center; 
+    
+    /* 3. 🔥 الحل السحري: كنزوميو باش نخرجو الكحل لبرا 🔥 */
+    /* يلا باقي شوية د الكحل كيبان، زيد فهاد الرقم (مثلاً 1.4 أو 1.5) */
+    transform: scale(1.15); 
+    
+    opacity: 1;
+    transition: transform 0.6s ease;
+}
+
+
+/* --- MEDIA TOOLS CARD STYLE --- */
+
+.media-tools-card {
+    position: relative;
+    overflow: hidden;
+    background: #f8f9fa; /* لون احتياطي */
+}
+
+/* تنسيق الصورة الخلفية */
+.media-tools-card .card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    filter: brightness(0.8); /* ضلمناها شوية باش الكتابة تبان مزيان */
+}
+
+.media-tools-card:hover .card-bg {
+    transform: scale(1.05);
+    filter: brightness(0.9);
+}
+
+/* تنسيق الكتابة (الوسط + لون أبيض + ضل) */
+.media-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+}
+
+.media-content h3 {
+    color: rgb(255, 255, 255);
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.9); /* نفس الضل ديال Assets */
+}
+
+.media-content p {
+    color: #f1f1f1;
+    font-size: 1rem;
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+
+/* --- ASSETS CARD STYLE --- */
+.assets-card {
+    position: relative;
+    overflow: hidden;
+    background: #e3f2fd; /* لون احتياطي */
+}
+
+.assets-card .card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    opacity: 0.9; /* خليناها واضحة حيت الألوان فاتحة */
+}
+
+.assets-card:hover .card-bg {
+    transform: scale(1.05); /* حركة خفيفة */
+}
+
+.assets-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+}
+
+/* الستايل ديال الكتابة باش تولي بحال خوتها */
+.assets-content h3 {
+    color: white;           /* لون أبيض ناصع */
+    font-size: 1.8rem;      /* كبرناها باش تبان واضحة */
+    font-weight: 800;       /* غليضة (Bold) */
+    margin: 0;
+    
+    /* 🔥 الضل المجهد باش تبان فوق أي تصويرة 🔥 */
+    text-shadow: 0 4px 15px rgba(0,0,0,0.9); 
+}
+
+
+/* --- HONAR CARD STYLES --- */
+.honar-card {
+    position: relative;
+    overflow: hidden;
+    background-color: #e8f5e9; /* اللون لي كان عندك كاحتياط */
+}
+
+/* استعملنا نفس الكلاس "card-bg" لي عندك فـ Notes و Gallery باش نحافظو على التناسق */
+.honar-card .card-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    filter: brightness(0.7); /* ضلمناها شوية باش يبان العنوان */
+}
+
+.honar-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+}
+
+.honar-content h3 {
+    color: white;
+    font-weight: 00;
+    font-size: 1.6rem;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+}
+
+/* أنيماسيون عند تمرير الماوس */
+.honar-card:hover .card-bg {
+    transform: scale(1.1);
+    filter: brightness(0.8);
+}
+
+/* --- INFINITE MARQUEE (FULL WIDTH & CLOSE) --- */
+.marquee-wrapper {
+    /* 🔥 هاد 4 سطور هما السر باش يشد العرض كامل واخا وسط Container 🔥 */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+
+    overflow: hidden;
+    background: transparent;
+    padding: 20px 0;    /* نقصنا شوية من البادينغ باش يرقاق */
+    margin-top: 0;      
+}
+
+.marquee-content {
+    display: flex;
+    width: max-content;
+    animation: scroll-text 30s linear infinite;
+}
+
+.marquee-content span {
+    font-family: 'Titan One', cursive;
+    font-size: 4rem;      
+    color: #000;          
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-right: 80px;  /* تباعد بين الجمل */
+    
+    /* باش الرمز يجي مقاد مع الكتابة */
+    display: flex;
+    align-items: center;
+}
+
+@keyframes scroll-text {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* =========================================
+   6. ANIMATIONS & UTILITIES
+   ========================================= */
+
+/* Scroll Animation Styles */
+.hidden-left { opacity: 0; transform: translateX(-150px); transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); }
+.hidden-right { opacity: 0; transform: translateX(150px); transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); }
+.show { opacity: 1 !important; transform: translateX(0) !important; }
+
+/* Legacy / Other Utilities (Keeping just in case) */
+.card-module { transition: transform 0.3s; cursor: pointer; }
+.card-module:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+.artwork-display { border: 2px dashed #ccc; padding: 20px; text-align: center; background: #fff; margin-bottom: 20px; min-height: 300px; display: flex; align-items: center; justify-content: center; }
+.artwork-img { max-width: 100%; max-height: 500px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.canvas-container { background-color: #fff; cursor: crosshair; border: 1px solid #ccc; background-image: linear-gradient(45deg, #eee 25%, transparent 25%), linear-gradient(-45deg, #eee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eee 75%), linear-gradient(-45deg, transparent 75%, #eee 75%); background-size: 20px 20px; display: flex; justify-content: center; align-items: center; padding: 10px; }
+#drawCanvas { box-shadow: 0 0 10px rgba(0,0,0,0.1); background: white; }
+.active-tool { background-color: #212529 !important; color: white !important; transform: scale(1.05); }
+
+/* =========================================
+   8. FOOTER STYLES
+   ========================================= */
+.footer-links a {
+    color: #666;             /* رمادي مغلوق */
+    text-decoration: none;   /* حيدنا التسطير */
+    margin: 0 15px;          /* التباعد بين الكلمات */
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #000;             /* يولي كحل ملي دوز عليه */
+}
+
+

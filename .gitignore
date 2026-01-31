@@ -1,0 +1,21 @@
+# --- Python & Flask ---
+__pycache__/
+*.pyc
+instance/
+.pytest_cache/
+
+# --- Virtual Environment (مهم بزاف) ---
+.venv/
+venv/
+env/
+
+# --- Environment Variables (Secrets) ---
+.env
+config.py
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+
+# --- Editors (VS Code settings) ---
+.vscode/

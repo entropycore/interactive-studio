@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h2>🎨 Creative Studio (Mini-Paint)</h2>
+    <p>Select a tool and start creating. Shapes, colors, and freehand!</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-3">
+        <div class="card p-3 shadow-sm sticky-top" style="top: 80px;">
+            <h5 class="mb-3">🛠️ Tools</h5>
+            
+            <div class="d-grid gap-2 mb-3">
+                <button class="btn btn-outline-dark active-tool" id="btnBrush" onclick="setTool('brush')">✏️ Brush</button>
+                <button class="btn btn-outline-dark" id="btnLine" onclick="setTool('line')">📏 Line</button>
+                <button class="btn btn-outline-dark" id="btnRect" onclick="setTool('rect')">⬜ Rectangle</button>
+                <button class="btn btn-outline-dark" id="btnCircle" onclick="setTool('circle')">🔴 Circle</button>
+                <button class="btn btn-outline-secondary" id="btnEraser" onclick="setTool('eraser')">🧼 Eraser</button>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Color 🎨</label>
+                <input type="color" id="colorPicker" class="form-control form-control-color w-100" value="#000000">
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="fillShape">
+                <label class="form-check-label" for="fillShape">Fill Shapes (Tlawin)</label>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Size 🖌️</label>
+                <input type="range" id="lineWidth" class="form-range" min="1" max="20" value="5">
+            </div>
+
+            <hr>
+
+            <button onclick="clearCanvas()" class="btn btn-danger w-100 mb-2">Clear Canvas 🗑️</button>
+            
+            <form method="POST" id="drawingForm">
+                <input type="hidden" name="image_data" id="imageData">
+                <button type="button" onclick="saveDrawing()" class="btn btn-success w-100 py-2 fw-bold">
+                    Save Artwork 💾
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="canvas-container shadow bg-white rounded">
+            <canvas id="drawCanvas" width="800" height="600"></canvas>
+        </div>
+    </div>
+</div>
+
+{% if saved_image %}
+<div class="text-center mt-5 p-4 bg-light rounded border">
+    <h3>✅ Saved!</h3>
+    <img src="{{ url_for('static', filename='outputs/' + saved_image) }}" class="img-thumbnail mt-2" style="max-height: 300px;">
+    <br>
+    <a href="{{ url_for('static', filename='outputs/' + saved_image) }}" download class="btn btn-primary mt-3">Download PNG 📥</a>
+</div>
+{% endif %}
+
+<script>
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    const colorPicker = document.getElementById('colorPicker');
+    const lineWidth = document.getElementById('lineWidth');
+    const fillCheckbox = document.getElementById('fillShape');
+
+    // Variables d'état
+    let isDrawing = false;
+    let currentTool = 'brush';
+    let startX, startY;
+    let snapshot; // Bach nkhbiw l'etat d canvas mli nkon kanjrro l'souris
+
+    // Default Canvas Setup
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = 'round';
+
+    // Tool Selection Logic
+    function setTool(tool) {
+        currentTool = tool;
+        // Reset buttons style
+        document.querySelectorAll('.btn-outline-dark, .btn-outline-secondary').forEach(btn => btn.classList.remove('active', 'bg-dark', 'text-white'));
+        
+        // Highlight active button
+        const btnId = 'btn' + tool.charAt(0).toUpperCase() + tool.slice(1);
+        const activeBtn = document.getElementById(btnId);
+        if(activeBtn) activeBtn.classList.add('active', 'bg-dark', 'text-white');
+    }
+
+    // Mouse Events
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', drawing);
+    canvas.addEventListener('mouseup', stopDraw);
+
+    function startDraw(e) {
+        isDrawing = true;
+        ctx.beginPath();
+        
+        // Calculer position exacte
+        const rect = canvas.getBoundingClientRect();
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+
+        // Save snapshot pour les formes (Rect, Circle, Line)
+        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        // Config Styles
+        ctx.lineWidth = lineWidth.value;
+        if (currentTool === 'eraser') {
+            ctx.strokeStyle = '#FFFFFF';
+        } else {
+            ctx.strokeStyle = colorPicker.value;
+            ctx.fillStyle = colorPicker.value;
+        }
+    }
+
+    function drawing(e) {
+        if (!isDrawing) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const currentX = e.clientX - rect.left;
+        const currentY = e.clientY - rect.top;
+
+        if (currentTool === 'brush' || currentTool === 'eraser') {
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+        } else {
+            // Pour les formes, on restore l'image d'avant (snapshot) pour éviter de laisser une trace (trail)
+            ctx.putImageData(snapshot, 0, 0);
+            
+            if (currentTool === 'rect') {
+                drawRect(currentX, currentY);
+            } else if (currentTool === 'circle') {
+                drawCircle(currentX, currentY);
+            } else if (currentTool === 'line') {
+                drawLine(currentX, currentY);
+            }
+        }
+    }
+
+    function stopDraw() {
+        isDrawing = false;
+    }
+
+    // --- Fonctions de Formes ---
+
+    function drawLine(x, y) {
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+    }
+
+    function drawRect(x, y) {
+        const w = x - startX;
+        const h = y - startY;
+        if (!fillCheckbox.checked) {
+            ctx.strokeRect(startX, startY, w, h);
+        } else {
+            ctx.fillRect(startX, startY, w, h);
+        }
+    }
+
+    function drawCircle(x, y) {
+        ctx.beginPath();
+        let radius = Math.sqrt(Math.pow((startX - x), 2) + Math.pow((startY - y), 2));
+        ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+        if (fillCheckbox.checked) {
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
+    }
+
+    // --- Helpers ---
+    function clearCanvas() {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveDrawing() {
+        const dataURL = canvas.toDataURL('image/png');
+        document.getElementById('imageData').value = dataURL;
+        document.getElementById('drawingForm').submit();
+    }
+</script>
+{% endblock %}

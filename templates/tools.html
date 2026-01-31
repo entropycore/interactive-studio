@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card p-4 shadow-sm border-0" style="background: #fff;">
+            <h3 class="mb-3 fw-bold">🛠️ Media Tools</h3>
+            <p class="text-muted">Apply artistic filters to your photos.</p>
+            
+            <form method="POST" enctype="multipart/form-data">
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold">1. Upload Image 📸</label>
+                    <input type="file" name="file" class="form-control" accept="image/*" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">2. Choose Effect ✨</label>
+                    <div class="d-grid gap-2">
+                        <input type="radio" class="btn-check" name="filter_type" id="f1" value="grayscale" checked>
+                        <label class="btn btn-outline-dark text-start" for="f1">⚫⚪ Grayscale (B&W)</label>
+
+                        <input type="radio" class="btn-check" name="filter_type" id="f2" value="blur">
+                        <label class="btn btn-outline-dark text-start" for="f2">🌫️ Gaussian Blur</label>
+
+                        <input type="radio" class="btn-check" name="filter_type" id="f3" value="contour">
+                        <label class="btn btn-outline-dark text-start" for="f3">✏️ Edge Detection (Sketch)</label>
+
+                        <input type="radio" class="btn-check" name="filter_type" id="f4" value="invert">
+                        <label class="btn btn-outline-dark text-start" for="f4">🌗 Invert Colors (Negative)</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Apply Filter 🚀</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="artwork-display h-100 border rounded bg-light d-flex align-items-center justify-content-center flex-column p-3">
+            {% if image_filename %}
+                <h5 class="mb-3 badge bg-success fs-6">✅ Result Ready!</h5>
+                <img src="{{ url_for('static', filename='outputs/' + image_filename) }}" class="img-fluid shadow rounded" style="max-height: 500px;">
+                <br>
+                <a href="{{ url_for('static', filename='outputs/' + image_filename) }}" download class="btn btn-dark mt-3">
+                    Download Edited Image 📥
+                </a>
+            {% else %}
+                <div class="text-center text-muted opacity-50">
+                    <h1 style="font-size: 5rem;">📸</h1>
+                    <p>No image processed yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

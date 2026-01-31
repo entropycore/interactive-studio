@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container h-100">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>📝 Studio Notes</h3>
+                <span class="text-muted">Draft your ideas here.</span>
+            </div>
+            
+            <form method="POST" class="shadow-sm rounded overflow-hidden">
+                <div class="bg-light p-2 border-bottom d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-dark fw-bold">B</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark fst-italic">I</button>
+                    <button type="button" class="btn btn-sm btn-outline-dark text-decoration-underline">U</button>
+                    <div class="vr"></div>
+                    <span class="text-muted small align-self-center">Auto-saves to server</span>
+                </div>
+
+                <textarea name="content" class="form-control border-0 p-4" rows="15" 
+                          placeholder="Start writing your project report, ideas, or artistic concepts..." 
+                          style="resize: none; font-size: 1.1rem; line-height: 1.6;">{{ content }}</textarea>
+                
+                <div class="bg-white p-3 border-top text-end">
+                    {% if saved %}
+                        <span class="text-success me-3 fade-out">✅ Saved successfully!</span>
+                    {% endif %}
+                    <button type="submit" class="btn btn-dark px-4">Save Document 💾</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

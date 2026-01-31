@@ -1,0 +1,72 @@
+[
+    {
+        "id": "c0301dd8-2ed6-443b-b678-bd4cbe3a39b4",
+        "title": "hi honar...",
+        "timestamp": "2026-01-29T18:38:36.253242",
+        "messages": [
+            {
+                "sender": "bot",
+                "text": "Hello! I am Honar. How can I help you create art today? \ud83c\udfa8"
+            },
+            {
+                "sender": "user",
+                "text": "hi honar"
+            },
+            {
+                "sender": "bot",
+                "text": "Hello! I am your Creative AI Assistant. How can I help you create art today? \ud83e\udd16"
+            },
+            {
+                "sender": "user",
+                "text": "how to creat a document"
+            },
+            {
+                "sender": "bot",
+                "text": "I'm focusing on your art right now. Ask me about your Gallery, Drawing tools, or Data visualization! \ud83e\udd14"
+            },
+            {
+                "sender": "user",
+                "text": "data visualization"
+            },
+            {
+                "sender": "bot",
+                "text": "Head over to 'Data Visualization'. Upload a CSV file and I will help you turn it into a Bar, Line, or Donut chart! \ud83d\udcc8"
+            },
+            {
+                "sender": "user",
+                "text": "i did it"
+            },
+            {
+                "sender": "bot",
+                "text": "I'm focusing on your art right now. Ask me about your Gallery, Drawing tools, or Data visualization! \ud83e\udd14"
+            }
+        ]
+    },
+    {
+        "id": "4398bbec-6738-4472-b319-6de83b7d61cb",
+        "title": "hi...",
+        "timestamp": "2026-01-31T16:13:33.706904",
+        "messages": [
+            {
+                "sender": "bot",
+                "text": "Hello! I am Honar. How can I help you create art today? \ud83c\udfa8"
+            },
+            {
+                "sender": "user",
+                "text": "hi"
+            },
+            {
+                "sender": "bot",
+                "text": "Hello! I am your Creative AI Assistant. How can I help you create art today? \ud83e\udd16"
+            },
+            {
+                "sender": "user",
+                "text": "gdhj'"
+            },
+            {
+                "sender": "bot",
+                "text": "I'm focusing on your art right now. Ask me about your Gallery, Drawing tools, or Data visualization! \ud83e\udd14"
+            }
+        ]
+    }
+]

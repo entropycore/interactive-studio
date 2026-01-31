@@ -1,0 +1,110 @@
+{% extends "base.html" %} {% block content %}
+<div class="row">
+  <div class="col-md-4">
+    <div class="card p-4 shadow-sm">
+      <h4 class="mb-3">📊 Data Analysis</h4>
+
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">1. Upload your CSV File 📂</label>
+          <div class="input-group">
+            <input
+              type="file"
+              name="csv_file"
+              class="form-control"
+              accept=".csv"
+              required
+            />
+            <button class="btn btn-primary" type="submit">Analyze</button>
+          </div>
+          <small class="text-muted">Format: CSV with headers</small>
+        </div>
+      </form>
+
+      <hr />
+
+      {% if columns_info %}
+      <form method="POST">
+        <input
+          type="hidden"
+          name="uploaded_filename"
+          value="{{ uploaded_file }}"
+        />
+
+        <div class="alert alert-success py-2">
+          <small>✅ File Loaded: {{ uploaded_file }}</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Select Chart Type</label>
+          <select name="chart_type" class="form-select">
+            <option value="bar">Bar Chart (Histogramme) 📊</option>
+            <option value="line">Line Chart (Courbe) 📈</option>
+            <option value="scatter">Scatter Plot (Nuage) 🌌</option>
+            <option value="donut">Donut Chart 🍩</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">X Axis (Categories/Time)</label>
+          <select name="x_axis" class="form-select">
+            {% for col in columns_info.all %}
+            <option value="{{ col }}">{{ col }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Y Axis (Values/Numbers)</label>
+          <select name="y_axis" class="form-select">
+            {% for col in columns_info.numeric %}
+            <option value="{{ col }}">{{ col }}</option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">Only numeric columns shown here.</small>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 fw-bold">
+          Generate Visualization 🚀
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    {% if chart_image %}
+    <div class="card shadow p-2">
+      <h5 class="card-header bg-white">Result Visualization</h5>
+      <img
+        src="{{ url_for('static', filename='outputs/' + chart_image) }}"
+        class="img-fluid w-100"
+      />
+      <div class="card-body text-center">
+        <a
+          href="{{ url_for('static', filename='outputs/' + chart_image) }}"
+          download
+          class="btn btn-outline-dark"
+          >Download Image 📥</a
+        >
+      </div>
+    </div>
+    {% elif columns_info %}
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">Data Preview (First 5 rows)</div>
+      <div class="card-body overflow-auto">
+        {{ columns_info.preview | safe }}
+      </div>
+    </div>
+    {% else %}
+    <div
+      class="artwork-display border bg-light text-muted"
+      style="min-height: 400px"
+    >
+      <p class="mt-5 pt-5">Waiting for data...</p>
+      <p>Upload a CSV file to start analyzing.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
