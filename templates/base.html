@@ -285,12 +285,32 @@
   
 
   <script>
-        // دالة باش تحل وتسد الموني فالموبايل
+        
         function toggleMobileMenu() {
             const menu = document.getElementById('navMenu');
             menu.classList.toggle('active');
         }
-    </script>
 
+        
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('navMenu');
+            const hamburgerBtn = document.querySelector('.hamburger-btn');
+
+            
+            if (menu.classList.contains('active') && 
+                !menu.contains(event.target) && 
+                !hamburgerBtn.contains(event.target)) {
+                
+                menu.classList.remove('active');
+            }
+        });
+
+       
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navMenu').classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>
