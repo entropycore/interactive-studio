@@ -510,6 +510,27 @@ body {
     align-items: center;
 }
 
+/* 🔥 تصحيح الكتابة فالموبايل (باش ماتبقاش داخلة فالكارت) 🔥 */
+@media (max-width: 768px) {
+    
+    /* 1. صغرنا الكتابة للنص (من 4rem لـ 2rem) */
+    .marquee-content span {
+        font-size: 2rem; 
+        padding-right: 40px; /* نقصنا التباعد بين الجمل */
+    }
+
+    /* 2. صغرنا حتى النقطة والمسافة ديالها */
+    .marquee-content span::after {
+        margin: 0 30px; 
+    }
+
+    /* 3. حيدنا داك الهجوم (Negative Margin) باش تبعد شوية على Honar */
+    .marquee-wrapper {
+        margin-top: 10px !important; /* كانت -20px، رديناها 10px باش تتنفس */
+        padding: 15px 0;
+    }
+}
+
 @keyframes scroll-text {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
@@ -550,3 +571,89 @@ body {
 }
 
 
+/* =========================================
+   9. RESPONSIVE NAVBAR (MOBILE)
+   ========================================= */
+
+/* فالأصل، خبي بوطونة الموني فالبيسي */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #000;
+}
+
+/* 🔥 MEDIA QUERY: ملي الشاشة تصغار (Tablet & Mobile) 🔥 */
+@media (max-width: 900px) {
+    
+    /* 1. بين البوطونة */
+    .hamburger-btn {
+        display: block;
+    }
+
+    /* 2. بدل شكل الموني (Glassmorphism Version) */
+.nav-menu {
+        position: absolute;
+        top: 80px;      /* لاصقة فالبار نيشان */
+        left: 0;
+        width: 100%;
+        
+        /* الخلفية الزجاجية */
+        background: rgba(255, 255, 255, 0.75); 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        
+        /* 🔥 التعديل المهم هنا: حيدنا البادينغ 20px رديناها 0 🔥 */
+        padding: 0; 
+        margin: 0;
+        
+        /* جمالية: تدويرة خفيفة فالقنات لتحت */
+        border-radius: 0 0 15px 15px; 
+        
+        flex-direction: column;
+        gap: 0;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        
+        display: none; 
+        z-index: 999;
+    }
+    /* كلاس باش نبينوه بـ JS */
+    .nav-menu.active {
+        display: flex;
+        animation: slideDownMenu 0.3s ease-out;
+    }
+
+    .nav-menu li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-menu li a {
+        display: block;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: 600; /* غلضنا الخط شوية */
+        color: #333;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* فواصل شفافة */
+        transition: all 0.3s;
+    }
+
+    /* تأثير Hover فالزجاج */
+    .nav-menu li a:hover {
+        background: rgba(255, 255, 255, 0.5); /* تولي بيضة كتر ملي تقيسها */
+        padding-left: 20px; /* حركة خفيفة */
+        color: #000;
+    }
+    
+    .nav-menu li a::after { display: none; } /* حيد الخط لي كيتحرك لتحت */
+}
+
+@keyframes slideDownMenu {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
