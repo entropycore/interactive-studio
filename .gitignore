@@ -4,7 +4,7 @@ __pycache__/
 instance/
 .pytest_cache/
 
-# --- Virtual Environment (مهم بزاف) ---
+# --- Virtual Environment  ---
 .venv/
 venv/
 env/
