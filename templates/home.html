@@ -15,8 +15,7 @@
     </div>
 </section>
 
-<div class="container" style="padding-bottom: 0px;">
-    
+<div class="container" style="padding-bottom: 50px;">
     <div class="bento-grid">
         
         <a href="{{ url_for('generative') }}" class="bento-box span-2x2 sketch-card hidden-left">
@@ -29,10 +28,7 @@
         </a>
 
         <a href="{{ url_for('gallery') }}" class="bento-box span-1x1 gallery-card hidden-right">
-            <div class="card-bg" style="
-                background-image: url('{{ url_for('static', filename='assets/gallery_bg.jpg') }}');
-            "></div>
-            
+            <div class="card-bg" style="background-image: url('{{ url_for('static', filename='assets/gallery_bg.jpg') }}');"></div>
             <div class="gallery-content">
                 <h3>Gallery</h3>
                 <p>Saved Work</p>
@@ -45,7 +41,6 @@
             </video>
             <div class="data-content">
                 <h3>Data Visualization</h3>
-                
             </div>
         </a>
 
@@ -58,83 +53,54 @@
         </a>
 
         <a href="{{ url_for('tools') }}" class="bento-box span-2x1 hidden-left media-tools-card" style="padding: 0; border: none;">
-    
-    <img src="{{ url_for('static', filename='assets/media_tools_bg.jpg') }}" class="card-bg" alt="Media Tools">
-    
-    <div class="media-content">
-        <h3>Media Tools</h3>
-        <p>Filters & Audio</p>
-    </div>
-</a>
+            <img src="{{ url_for('static', filename='assets/media_tools_bg.jpg') }}" class="card-bg" alt="Media Tools">
+            <div class="media-content">
+                <h3>Media Tools</h3>
+                <p>Filters & Audio</p>
+            </div>
+        </a>
 
         <a href="{{ url_for('assets') }}" class="bento-box hidden-right assets-card" style="padding: 0; border: none;">
-    
-    <img src="{{ url_for('static', filename='assets/assets_bg.jpg') }}" class="card-bg" alt="Assets">
-    
-    <div class="assets-content">
-         <h3>Assets</h3>
+            <img src="{{ url_for('static', filename='assets/assets_bg.jpg') }}" class="card-bg" alt="Assets">
+            <div class="assets-content">
+                 <h3>Assets</h3>
+            </div>
+        </a>
+
+        <a href="{{ url_for('honar') }}" class="bento-box hidden-right honar-card" style="padding: 0;">
+            <img src="{{ url_for('static', filename='assets/honar_bg.jpg') }}" class="card-bg" alt="Honar">
+            <div class="honar-content">
+                <h3>Honar</h3>
+            </div>
+        </a>
+
     </div>
-
-</a>
-
-
-        <a href="{{ url_for('honar') }}" class="bento-box hidden-right honar-card" style="padding: 0; ">
-    <img src="{{ url_for('static', filename='assets/honar_bg.jpg') }}" class="card-bg" alt="Honar">
-    
-    <div class="honar-content">
-        <h3>Honar</h3>
-    </div>
-</a>
-
-<!--
-        <div class="bento-box span-4x1 hidden-left launch-card" style="padding:0; border:none;">
-    <video autoplay muted loop playsinline class="launch-video">
-        <source src="{{ url_for('static', filename='assets/Launch_bg.mp4') }}" type="video/mp4">
-    </video>
 </div>
 
+<div class="marquee-wrapper">
+    <div class="marquee-content">
+        <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp; &nbsp; ✦ &nbsp; </span>
+        <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp;  &nbsp; ✦ &nbsp; </span>
+        <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp;  &nbsp; ✦ &nbsp; </span>
+        <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp; &nbsp;  ✦ &nbsp; </span>
     </div>
-</div> -->
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                // 1. يلا العنصر بان فالسكرين
                 if (entry.isIntersecting) {
                     entry.target.classList.add('show');
-                } 
-                // 2. يلا العنصر خرج من السكرين (هنا السر باش تعاود الحركة)
-                else {
+                } else {
                     entry.target.classList.remove('show');
                 }
             });
-        }, { 
-            threshold: 0.1, // غير يبان 10% منو تبدا الحركة
-            rootMargin: "0px 0px -50px 0px" // كنزيرو شوية باش ما تبداش الحركة قبل الوقت
-        });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 
         const hiddenElements = document.querySelectorAll('.hidden-left, .hidden-right');
         hiddenElements.forEach((el) => observer.observe(el));
     });
 </script>
 
-
-
-
-
-
-
-
-
-{% endblock %} {% block full_width %}
-    <div class="marquee-wrapper" style="margin-top: -100px; margin-bottom: 100px;">
-        <div class="marquee-content">
-            <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp; &nbsp; ✦ &nbsp; </span>
-            <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp;  &nbsp; ✦ &nbsp; </span>
-            <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp;  &nbsp; ✦ &nbsp; </span>
-            <span>UNLEASH YOUR CREATIVITY WITH GEN STUDIO &nbsp; &nbsp; &nbsp;  ✦ &nbsp; </span>
-        </div>
-    </div>
 {% endblock %}
