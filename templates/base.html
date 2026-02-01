@@ -44,9 +44,26 @@
               >Gallery</a
             >
           </li>
-          <li><a href="{{ url_for('tutorials') }}">Tutorials</a></li>
-<li><a href="{{ url_for('about') }}">About</a></li>
-          <li><a href="{{ url_for('contact') }}">Contact</a></li>
+          <li>
+        <a href="{{ url_for('tutorials') }}" 
+           class="{{ 'active' if request.endpoint == 'tutorials' else '' }}">
+           Tutorials
+        </a>
+    </li>
+
+    <li>
+        <a href="{{ url_for('about') }}" 
+           class="{{ 'active' if request.endpoint == 'about' else '' }}">
+           About
+        </a>
+    </li>
+
+    <li>
+        <a href="{{ url_for('contact') }}" 
+           class="{{ 'active' if request.endpoint == 'contact' else '' }}">
+           Contact
+        </a>
+    </li>
         </ul>
 
         <div
@@ -111,8 +128,9 @@
         <div class="footer-links mb-4">
           <a href="{{ url_for('home') }}">Home</a>
           <a href="{{ url_for('gallery') }}">Gallery</a>
-          <a href="#">About</a>
-          <a href="#">Contact</a>
+          <a href="{{ url_for('tutorials') }}">Tutorials</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
         </div>
         <p class="footer-copy small mb-0">
           &copy; 2025 Digital Creativity Project. 
@@ -123,161 +141,75 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    {% if request.endpoint != 'home' and request.endpoint != 'honar' %}
-    <div id="honar-widget-container">
-      <div class="honar-header" onclick="toggleHonarWidget()">
-        <div style="display: flex; align-items: center; gap: 8px">
-          <span style="font-size: 1.2rem">🤖</span>
-          <span>Honar</span>
+    {% if request.endpoint != 'home' %}
+
+<div class="luxury-ai-wrapper">
+    
+    <div class="luxury-chat-box" id="aiChatBox">
+        <div class="chat-header">
+            <div class="header-brand">
+                <img src="{{ url_for('static', filename='assets/hermes_helmet.png') }}" class="luxury-icon-small">
+                <span>Honar AI</span>
+            </div>
+            <button onclick="toggleAI()" class="close-btn">×</button>
         </div>
-        <span id="honar-toggle-icon">▲</span>
-      </div>
-      <div class="honar-body" id="honar-body">
-        <div class="honar-msg bot">Hi! Need help with this tool? 🎨</div>
-      </div>
-      <div class="honar-footer">
-        <input
-          type="text"
-          id="honar-widget-input"
-          placeholder="Ask Honar..."
-          onkeypress="handleHonarEnter(event)"
-        />
-        <button onclick="sendHonarWidgetMsg()">➤</button>
-      </div>
+        
+        <div class="chat-body" id="aiMessagesBody">
+            <div class="ai-msg bot">
+                Hello! I'm Honar AI. Ready to create magic? 🎨
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="aiInput" placeholder="Ask me anything..." onkeypress="handleAIEnter(event)">
+            <button class="send-btn" onclick="sendAIMsg()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
     </div>
-    <style>
-      #honar-widget-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 300px;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        z-index: 999999;
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        transition: all 0.3s ease;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
-      .honar-header {
-        background: linear-gradient(135deg, #111, #333);
-        color: white;
-        padding: 12px 15px;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 600;
-      }
-      .honar-body {
-        height: 0;
-        opacity: 0;
-        background: #f8f9fa;
-        overflow-y: auto;
-        transition: all 0.3s ease;
-      }
-      .honar-footer {
-        height: 0;
-        opacity: 0;
-        background: white;
-        border-top: 1px solid #eee;
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        transition: all 0.3s ease;
-      }
-      #honar-widget-container.is-open .honar-body {
-        height: 250px;
-        padding: 15px;
-        opacity: 1;
-      }
-      #honar-widget-container.is-open .honar-footer {
-        height: 50px;
-        padding: 10px;
-        opacity: 1;
-      }
-      #honar-widget-input {
-        flex-grow: 1;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        padding: 8px 12px;
-        outline: none;
-        font-size: 0.9rem;
-      }
-      .honar-footer button {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        margin-left: 8px;
-        cursor: pointer;
-        color: #333;
-      }
-      .honar-msg {
-        padding: 8px 12px;
-        border-radius: 12px;
-        margin-bottom: 8px;
-        max-width: 85%;
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
-      .honar-msg.bot {
-        background: #e9ecef;
-        color: #333;
-        align-self: flex-start;
-        border-bottom-left-radius: 2px;
-      }
-      .honar-msg.user {
-        background: #007bff;
-        color: white;
-        align-self: flex-end;
-        margin-left: auto;
-        border-bottom-right-radius: 2px;
-      }
-    </style>
-    <script>
-      function toggleHonarWidget() {
-        const widget = document.getElementById("honar-widget-container");
-        const icon = document.getElementById("honar-toggle-icon");
-        widget.classList.toggle("is-open");
-        icon.textContent = widget.classList.contains("is-open") ? "▼" : "▲";
-      }
-      function handleHonarEnter(e) {
-        if (e.key === "Enter") sendHonarWidgetMsg();
-      }
-      function sendHonarWidgetMsg() {
-        const input = document.getElementById("honar-widget-input");
+
+    <button class="luxury-btn" onclick="toggleAI()" id="luxuryBtn">
+        <img src="{{ url_for('static', filename='assets/hermes_helmet.png') }}" class="luxury-icon">
+        <span class="btn-text">AI Assistant</span>
+    </button>
+
+</div>
+
+<script>
+    function toggleAI() {
+        const wrapper = document.querySelector('.luxury-ai-wrapper');
+        const input = document.getElementById('aiInput');
+        wrapper.classList.toggle('open');
+        if (wrapper.classList.contains('open')) setTimeout(() => input.focus(), 400);
+    }
+    function handleAIEnter(e) { if(e.key === "Enter") sendAIMsg(); }
+    function sendAIMsg() {
+        const input = document.getElementById("aiInput");
         const txt = input.value.trim();
-        if (!txt) return;
-        addHonarMsg(txt, "user");
+        if(!txt) return;
+        addMsg(txt, 'user');
         input.value = "";
         fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: txt }),
+            method: "POST", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ message: txt })
         })
-          .then((res) => res.json())
-          .then((data) => {
-            addHonarMsg(data.response, "bot");
-          })
-          .catch((err) => {
-            addHonarMsg("Honar is offline.", "bot");
-          });
-      }
-      function addHonarMsg(text, type) {
-        const body = document.getElementById("honar-body");
+        .then(res => res.json()).then(data => addMsg(data.response, 'bot'))
+        .catch(err => addMsg("Honar is sleeping...", 'bot'));
+    }
+    function addMsg(text, type) {
+        const body = document.getElementById("aiMessagesBody");
         const div = document.createElement("div");
-        div.className = `honar-msg ${type}`;
+        div.className = `ai-msg ${type}`;
         div.innerText = text;
         body.appendChild(div);
         body.scrollTop = body.scrollHeight;
-      }
-    </script>
-    {% endif %}
+    }
+</script>
+
+{% endif %}
 
     <script>
       function toggleSearch() {
