@@ -217,12 +217,12 @@ def search():
     if not query:
         return jsonify([])
     
-    # كنقلبو فالعنوان وفالكلمات المفتاحية
+  
     results = [
         item for item in SITE_CONTENT 
         if query in item['title'].lower() or query in item['keywords']
     ]
-    # كنرجعو غير أول 5 نتائج باش ما تعمرش الشاشة
+
     return jsonify(results[:5])
 
 
@@ -232,23 +232,22 @@ def search():
 # --- NEW: ROUTE CONTACT FORM ---
   
 
-# ضروري باش تخدم flash messages
+# flash messages
 app.secret_key = 'super_secret_key' 
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
-        # 1. شدينا الداتا من الفورم
+        
         name = request.form.get('name')
         email = request.form.get('email')
         message = request.form.get('message')
         
-        # 2. درنا Backend Logic (Validation)
+        # 2. Backend Logic (Validation)
         if not name or not email:
             flash("Please fill all fields!", "error")
             return redirect(url_for('contact'))
             
-        # 3. خزينا الداتا (مثلاً فملف JSON باش يبقى أثر)
         data = {"name": name, "email": email, "message": message}
         with open('messages.json', 'a') as f:
             f.write(json.dumps(data) + "\n")

@@ -546,29 +546,29 @@ body.dark-mode .site-footer {
     animation: fadeInUp 0.8s ease-out;
 }
 
-/* ستايل التصويرة */
+
 .illustration {
     width: 100%;
-    max-width: 300px; /* الحجم اللي اتفقنا عليه */
+    max-width: 300px; 
     height: auto;
     
-    /* 🔥 1. نقصنا المسافة هنا (كانت 30px) 🔥 */
+    
     margin-bottom: 10px; 
     
-    /* الخدعة باش تحيد الخلفية البيضاء فـ Light Mode */
+    
     mix-blend-mode: multiply; 
     
     animation: floatImage 3s ease-in-out infinite;
 }
 
-/* ستايل العناوين */
+
 .construction-title {
     font-family: 'Poppins', sans-serif;
     font-size: 2rem;
     font-weight: 800;
     color: #333;
     
-    /* 🔥 2. نقصنا المسافة من الفوق باش تقرب للتصويرة 🔥 */
+    
     margin-top: 0;
     margin-bottom: 10px;
 }
@@ -581,7 +581,7 @@ body.dark-mode .site-footer {
     margin-bottom: 30px;
 }
 
-/* بوطونة الرجوع */
+
 .back-btn {
     display: inline-block;
     padding: 12px 30px;
@@ -608,24 +608,18 @@ body.dark-mode .site-footer {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- DARK MODE FIXES (الحل ديال الظلام) 🌙 --- */
-/* --- DARK MODE FIXES 🌙 --- */
+/* --- DARK MODE FIXES  --- */
 body.dark-mode .construction-container {
     background: #121212 !important;
 }
 
 body.dark-mode .illustration {
-    /* 🔥 1. رجعناها Normal باش تبان بألوانها الحقيقية 🔥 */
     mix-blend-mode: normal !important; 
-    
-    /* 🔥 2. حيدنا الخلفية البيضاء نهائياً 🔥 */
     background: transparent !important; 
     
-    /* حيدنا التدويرة والمسافة الزايدة */
     padding: 0;
     border-radius: 0;
     
-    /* نقصنا الضوء شوية باش ما تجيش ناصعة بزاف فالظلام */
     filter: brightness(0.9); 
 }
 
