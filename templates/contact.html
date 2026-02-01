@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - GEN STUDIO{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px;">
+    
+    <div style="
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 500px;
+        border: 1px solid rgba(255,255,255,0.5);
+    ">
+        <h2 style="text-align: center; margin-bottom: 20px; font-weight: 800; font-family: 'Poppins', sans-serif;">GET IN TOUCH</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div style="
+                  padding: 10px; margin-bottom: 15px; border-radius: 5px; text-align: center;
+                  background: {{ '#d4edda' if category == 'success' else '#f8d7da' }};
+                  color: {{ '#155724' if category == 'success' else '#721c24' }};
+              ">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="/contact" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Name</label>
+                <input type="text" name="name" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none;">
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email</label>
+                <input type="email" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none;">
+            </div>
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Message</label>
+                <textarea name="message" rows="4" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; resize: vertical;"></textarea>
+            </div>
+            
+            <button type="submit" style="
+                background: #000; color: #fff; padding: 12px; border: none; border-radius: 5px; 
+                font-weight: bold; cursor: pointer; transition: transform 0.2s; margin-top: 10px;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                SEND MESSAGE 🚀
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

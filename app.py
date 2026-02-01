@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify,flash
 import os
 import uuid
 import base64
@@ -224,6 +224,56 @@ def search():
     ]
     # كنرجعو غير أول 5 نتائج باش ما تعمرش الشاشة
     return jsonify(results[:5])
+
+
+
+
+
+# --- NEW: ROUTE CONTACT FORM ---
+  
+
+# ضروري باش تخدم flash messages
+app.secret_key = 'super_secret_key' 
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        # 1. شدينا الداتا من الفورم
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+        
+        # 2. درنا Backend Logic (Validation)
+        if not name or not email:
+            flash("Please fill all fields!", "error")
+            return redirect(url_for('contact'))
+            
+        # 3. خزينا الداتا (مثلاً فملف JSON باش يبقى أثر)
+        data = {"name": name, "email": email, "message": message}
+        with open('messages.json', 'a') as f:
+            f.write(json.dumps(data) + "\n")
+            
+        flash("Message sent successfully! 🚀", "success")
+        return redirect(url_for('contact'))
+
+    return render_template('contact.html')
+
+
+
+
+
+
+@app.route('/tutorials')
+def tutorials():
+    return render_template('construction.html')
+
+@app.route('/about')
+def about():
+    return render_template('construction.html')
+
+
+
+
 
 
 if __name__ == '__main__':
