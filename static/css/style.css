@@ -885,3 +885,159 @@ body.dark-mode .chat-body { background: #121212; }
 body.dark-mode .ai-msg.bot { background: #2c2c2c; color: #fff; border-color: #444; }
 body.dark-mode .chat-input-area { background: #1e1e1e; border-top-color: #333; }
 body.dark-mode .chat-input-area input { background: #2c2c2c; border-color: #444; color: white; }
+
+
+
+
+/* =========================================
+   FINAL MIX: YOUR SEARCH + FIXED LOGO 📱
+   ========================================= */
+@media screen and (max-width: 768px) {
+
+    
+    .nav-logo {
+        font-size: 1.3rem !important; 
+        white-space: nowrap !important; 
+        display: inline-block !important;
+        width: auto !important;
+        margin: 0 !important;
+    }
+
+    
+    .search-btn {
+        padding: 10px !important;
+    }
+
+    
+    .search-box.active {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 70px !important; 
+        
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px);
+        
+        display: flex;
+        align-items: center;
+        padding: 0 20px !important;
+        z-index: 999999 !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    
+    .search-box.active .search-input {
+        display: block !important;
+        width: 100% !important;
+        height: 40px !important;
+        background: transparent !important;
+        
+        border: none !important;
+        border-bottom: 2px solid #000 !important; 
+        border-radius: 0 !important;
+        
+        font-size: 1.1rem !important;
+        padding-left: 5px !important;
+        margin-left: 10px !important;
+        opacity: 1 !important;
+        position: static !important;
+    }
+
+    
+    .search-box.active .search-btn {
+        transform: rotate(90deg);
+        font-size: 1.2rem;
+    }
+
+    
+    .search-results {
+        position: fixed !important;
+        top: 70px !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto;
+        max-height: 60vh;
+        
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(15px);
+        border-top: 1px solid #eee;
+        
+        overflow-y: auto !important;
+        z-index: 999998 !important;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        scrollbar-width: none;
+    }
+    .search-results::-webkit-scrollbar { display: none; }
+
+    .search-results li a {
+        padding: 15px 20px !important;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: block;
+        font-size: 1rem;
+    }
+
+    
+    body.dark-mode .search-box.active {
+        background: rgba(18, 18, 18, 0.95) !important;
+    }
+    body.dark-mode .search-box.active .search-input {
+        color: #fff !important;
+        border-bottom: 2px solid #fff !important;
+    }
+    body.dark-mode .search-results {
+        background: rgba(30, 30, 30, 0.95) !important;
+        border-top: 1px solid #444;
+    }
+    body.dark-mode .search-results li a {
+        color: #eee;
+        border-bottom: 1px solid #444;
+    }
+    body.dark-mode .search-box.active .search-btn { color: white; }
+    
+    
+    body.dark-mode .nav-logo { color: #fff !important; }
+}
+
+
+
+/* =========================================
+   MOBILE AI BUTTON (CIRCULAR ICON ONLY) 📱
+   ========================================= */
+@media screen and (max-width: 768px) {
+
+    
+    .luxury-btn {
+        width: 50px !important;       
+        height: 50px !important;      
+        border-radius: 50% !important; 
+        padding: 0 !important;       
+        justify-content: center !important; 
+        gap: 0 !important;           
+        
+       
+        bottom: 20px ;      
+        right: 20px !important;
+    }
+
+    
+    .luxury-btn .btn-text {
+        display: none !important;
+    }
+
+    
+    .luxury-btn .luxury-icon {
+        width: 24px !important;       
+        height: auto !important;
+        margin: 0 !important;         
+        transform: none !important;   
+    }
+    
+   
+    .luxury-ai-wrapper {
+        bottom: 20px ;
+        right: 20px !important;
+    }
+}

@@ -68,5 +68,43 @@
                 "text": "I'm focusing on your art right now. Ask me about your Gallery, Drawing tools, or Data visualization! \ud83e\udd14"
             }
         ]
+    },
+    {
+        "id": "097274c7-cf33-4420-86d9-5184a3538017",
+        "title": "New Conversation",
+        "timestamp": "2026-02-02T18:19:21.965152",
+        "messages": [
+            {
+                "sender": "bot",
+                "text": "Hello! I am Honar. How can I help you create art today? \ud83c\udfa8"
+            }
+        ]
+    },
+    {
+        "id": "370ff95b-68c1-4aca-9447-14f31dc5a2ad",
+        "title": "Hi...",
+        "timestamp": "2026-02-02T18:20:17.291404",
+        "messages": [
+            {
+                "sender": "bot",
+                "text": "Hello! I am Honar. How can I help you create art today? \ud83c\udfa8"
+            },
+            {
+                "sender": "user",
+                "text": "Hi"
+            },
+            {
+                "sender": "bot",
+                "text": "Hello! I am your Creative AI Assistant. How can I help you create art today? \ud83e\udd16"
+            },
+            {
+                "sender": "user",
+                "text": "Iwa ma site ma tal3ba"
+            },
+            {
+                "sender": "bot",
+                "text": "I'm focusing on your art right now. Ask me about your Gallery, Drawing tools, or Data visualization! \ud83e\udd14"
+            }
+        ]
     }
 ]

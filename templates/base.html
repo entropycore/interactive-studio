@@ -95,7 +95,7 @@
             <ul class="search-results" id="searchResults"></ul>
           </div>
 
-          <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+          
 
           <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
     <svg class="theme-icon sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -114,6 +114,8 @@
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
     </svg>
 </button>
+
+<button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
 
         </div>
       </div>
@@ -173,7 +175,7 @@
 
     <button class="luxury-btn" onclick="toggleAI()" id="luxuryBtn">
         <img src="{{ url_for('static', filename='assets/hermes_helmet.png') }}" class="luxury-icon">
-        <span class="btn-text">AI Assistant</span>
+        <span class="btn-text">Ask</span>
     </button>
 
 </div>
@@ -299,6 +301,8 @@
         }
     }
 </script>
+
+
 
 
   </body>
