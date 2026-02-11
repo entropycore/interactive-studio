@@ -187,7 +187,7 @@ def editor():
 
 @app.route('/assets')
 def assets():
-    assets_dir = os.path.join('static', 'assets')
+    assets_dir = os.path.join('static', 'wallpapers')
     os.makedirs(assets_dir, exist_ok=True)
     return render_template('assets.html', wallpapers=os.listdir(assets_dir))
 
@@ -276,5 +276,4 @@ def about():
 
 
 if __name__ == '__main__':
-   
-   app.run(debug=True)                  # app.run(host='0.0.0.0', port=5000, debug=True) pour le host snd run in phone in the same network
+   app.run(host='0.0.0.0', port=5000, debug=True)   #app.run(debug=True) 

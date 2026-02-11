@@ -1,21 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="text-center mb-5">
-    <h1 class="fw-bold">💎 Art Asset Store</h1>
+    <h1 class="fw-bold">Art Asset Store</h1>
     <p class="text-muted">High-quality wallpapers & textures for your projects.</p>
 </div>
 
-<div class="row">
+<div class="row" id="galleryGrid">
     {% for img in wallpapers %}
     <div class="col-md-4 mb-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-img-top overflow-hidden" style="height: 250px;">
-                <img src="{{ url_for('static', filename='assets/' + img) }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <div class="card border-0 shadow-sm h-100 asset-card">
+            <div class="card-img-top overflow-hidden position-relative" style="height: 250px; cursor: pointer;">
+                
+                <img src="{{ url_for('static', filename='wallpapers/' + img) }}" 
+                     class="w-100 h-100 preview-trigger gallery-image" 
+                     style="object-fit: cover; transition: transform 0.3s;" 
+                     data-index="{{ loop.index0 }}"
+                     data-full="{{ url_for('static', filename='wallpapers/' + img) }}"
+                     onclick="openGallery(this)">
+                     
             </div>
+            
             <div class="card-body d-flex justify-content-between align-items-center">
                 <span class="fw-bold text-capitalize">{{ img.split('.')[0] }}</span>
-                <a href="{{ url_for('static', filename='assets/' + img) }}" download class="btn btn-sm btn-dark rounded-pill px-3">
+                <a href="{{ url_for('static', filename='wallpapers/' + img) }}" download class="btn btn-sm btn-dark rounded-pill px-3">
                     Download ⬇️
                 </a>
             </div>
@@ -24,8 +33,136 @@
     {% else %}
     <div class="col-12 text-center py-5 bg-light rounded">
         <h3>📂 Store is Empty</h3>
-        <p>Add images to <code>static/assets/</code> folder to see them here.</p>
+        <p>Add images to <code>static/wallpapers/</code> folder.</p>
     </div>
     {% endfor %}
 </div>
+
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true" onclick="closeOnBackdrop(event)">
+  <div class="modal-dialog modal-dialog-centered modal-xl"> 
+    <div class="modal-content bg-transparent border-0 position-relative"> 
+      
+        <div class="modal-body p-0 text-center d-flex align-items-center justify-content-center" style="height: 90vh;">
+            
+            <button class="nav-arrow prev-btn" onclick="changeImage(-1); event.stopPropagation();">
+                &#10094; 
+            </button>
+
+            <img id="previewImage" src="" class="img-fluid rounded shadow-lg main-preview-img" onclick="event.stopPropagation()">
+            
+            <button class="nav-arrow next-btn" onclick="changeImage(1); event.stopPropagation();">
+                &#10095; 
+            </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+    /* Minimalist Arrows Style */
+    .nav-arrow {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 4rem;
+        font-weight: 100;
+        padding: 0 40px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    .nav-arrow:hover {
+        color: #ffffff;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-btn { left: 0; }
+    .next-btn { right: 0; }
+
+    .main-preview-img {
+        max-height: 85vh;
+        max-width: 80vw;
+        object-fit: contain;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    /* Backdrop Blur */
+    .modal-backdrop.show {
+        opacity: 0.9 !important;
+        backdrop-filter: blur(8px);
+    }
+</style>
+
+<script>
+    let allImages = [];
+    let currentIndex = 0;
+    let myModal;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Collect all images for navigation
+        const imgElements = document.querySelectorAll('.gallery-image');
+        imgElements.forEach((img, index) => {
+            allImages.push({
+                src: img.getAttribute('data-full'),
+                index: index
+            });
+        });
+
+        const modalEl = document.getElementById('imagePreviewModal');
+        if(modalEl) {
+            myModal = new bootstrap.Modal(modalEl);
+            
+            // Keyboard Navigation Support
+            document.addEventListener('keydown', function(e) {
+                if (!modalEl.classList.contains('show')) return;
+                
+                if (e.key === "ArrowLeft") changeImage(-1);
+                if (e.key === "ArrowRight") changeImage(1);
+                if (e.key === "Escape") myModal.hide();
+            });
+        }
+    });
+
+    function openGallery(element) {
+        currentIndex = parseInt(element.getAttribute('data-index'));
+        updateModalContent();
+        myModal.show();
+    }
+
+    function changeImage(direction) {
+        currentIndex += direction;
+        
+        // Loop Logic (First <-> Last)
+        if (currentIndex >= allImages.length) currentIndex = 0;
+        if (currentIndex < 0) currentIndex = allImages.length - 1;
+
+        updateModalContent();
+    }
+
+    function updateModalContent() {
+        const imgData = allImages[currentIndex];
+        const previewImg = document.getElementById('previewImage');
+        
+        // Simple Fade Effect
+        previewImg.style.opacity = '0.5';
+        previewImg.src = imgData.src;
+        setTimeout(() => {
+            previewImg.style.opacity = '1';
+        }, 150);
+    }
+
+    // Close Modal on Background Click
+    function closeOnBackdrop(event) {
+        if (event.target.id === 'imagePreviewModal' || event.target.classList.contains('modal-dialog')) {
+            myModal.hide();
+        }
+    }
+</script>
+
 {% endblock %}
