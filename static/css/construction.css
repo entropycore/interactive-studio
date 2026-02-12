@@ -1,0 +1,20 @@
+/* =========================================
+   CONSTRUCTION PAGE
+   ========================================= */
+.construction-container { min-height: 80vh; display: flex; justify-content: center; align-items: center; background: #ffffff; padding: 20px; }
+.content-box { text-align: center; max-width: 600px; width: 100%; animation: fadeInUp 0.8s ease-out; }
+.illustration { width: 100%; max-width: 300px; height: auto; margin-bottom: 10px; mix-blend-mode: multiply; animation: floatImage 3s ease-in-out infinite; }
+.construction-title { font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 800; color: #333; margin-top: 0; margin-bottom: 10px; }
+.construction-text { font-family: 'Poppins', sans-serif; color: #666; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px; }
+.back-btn { display: inline-block; padding: 12px 30px; background-color: #333; color: #fff; text-decoration: none; border-radius: 30px; font-weight: 600; transition: transform 0.3s ease, background 0.3s ease; }
+.back-btn:hover { background-color: #000; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+@keyframes floatImage { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Dark Mode */
+body.dark-mode .construction-container { background: #121212 !important; }
+body.dark-mode .illustration { mix-blend-mode: normal !important; background: transparent !important; padding: 0; border-radius: 0; filter: brightness(0.9); }
+body.dark-mode .construction-title { color: #fff; }
+body.dark-mode .construction-text { color: #aaa; }
+body.dark-mode .back-btn { background-color: #fff; color: #000; }

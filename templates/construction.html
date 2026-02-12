@@ -3,6 +3,7 @@
 {% block title %}Under Construction 🚧{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/construction.css') }}">
 <div class="construction-container">
     <div class="content-box">
         <img src="{{ url_for('static', filename='assets/construction.png') }}" alt="Under Construction" class="illustration">

@@ -1,0 +1,308 @@
+/* =========================================
+   1. GLOBAL & RESET
+   ========================================= */
+html, body {
+    height: 100%;           
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;     
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+a { text-decoration: none; }
+
+/* =========================================
+   3. NAVBAR (ORIGINAL STICKY LOGIC)
+   ========================================= */
+.modern-navbar {
+    width: 100%;
+    height: 100px; 
+    background: #fdfbfb;
+    color: rgb(240, 238, 238);
+    display: flex;
+    align-items: center;
+    /* ✅ رجعت sticky كيفما كانت فالكود الأصلي ديالك */
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-family: 'Poppins', sans-serif;
+    padding: 0 20px; 
+}
+
+.nav-container { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%; 
+    max-width: 100%; 
+    margin: 0 auto;
+    height: 70px; 
+}
+
+.nav-logo { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #000; 
+    text-decoration: none; 
+    letter-spacing: 1px; 
+}
+
+.nav-menu { display: flex; list-style: none; margin: 0; padding: 0; gap: 30px; }
+.nav-menu li a { color: rgba(6, 5, 5, 0.7); text-decoration: none; font-size: 1rem; position: relative; transition: color 0.3s; }
+.nav-menu li a:hover, .nav-menu li a.active { color: rgb(5, 5, 5); }
+.nav-menu li a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 0; background-color: rgb(0, 0, 0); transition: width 0.3s ease; }
+.nav-menu li a.active::after, .nav-menu li a:hover::after { width: 100%; }
+
+/* --- Search Bar (Cleaned Duplicates) --- */
+.search-box { position: relative; display: flex; align-items: center; }
+.search-btn { background: none; border: none; color: rgb(0, 0, 0); cursor: pointer; font-size: 1.2rem; padding: 5px; transition: transform 0.3s; }
+.search-btn:hover { transform: scale(1.1); }
+
+/* دمجت الخصائص المكررة فكلاس واحد */
+.search-input { 
+    width: 0; 
+    border: none; 
+    background: transparent; 
+    color: #000; 
+    font-size: 1rem; 
+    border-bottom: 1px solid #333; 
+    border-radius: 0; 
+    padding: 5px 0; 
+    outline: none; 
+    transition: width 0.4s ease, padding 0.4s ease; 
+    position: absolute; 
+    right: 40px; 
+    opacity: 0; 
+}
+
+.search-box.active .search-input { 
+    width: 200px; 
+    padding: 5px 0; 
+    opacity: 1; 
+    background: transparent; 
+}
+
+/* Search Results */
+.search-results {
+    position: absolute;
+    top: 45px;
+    right: 40px;
+    width: 210px;
+    background: rgba(255, 255, 255, 0.25); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5); 
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    list-style: none; padding: 8px; margin: 0; display: none; z-index: 10000;
+    animation: fadeInSlide 0.3s ease-in-out;
+}
+.search-results li { margin-bottom: 4px; }
+.search-results li a { display: block; padding: 10px 15px; color: #1a1a1a; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 8px; transition: all 0.2s; }
+.search-results li a:hover { background: rgba(255, 255, 255, 0.7); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transform: translateX(3px); }
+
+@keyframes fadeInSlide { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+
+/* --- BURGER BTN  --- */
+.hamburger-btn {
+    display: none; 
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: #333;
+    padding: 5px;
+    z-index: 10001;
+}
+
+/* =========================================
+   7. FOOTER
+   ========================================= */
+.site-footer {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 50px 0;
+    margin-top: auto; 
+    width: 100%; 
+    border: none;
+    margin-bottom: 0;
+}
+
+.site-footer .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+.site-footer .footer-logo { font-weight: 800; letter-spacing: 2px; color: #ffffff; }
+.site-footer .footer-links a { color: #b3b3b3; text-decoration: none; margin: 0 15px; font-size: 0.95rem; transition: color 0.3s ease; }
+.site-footer .footer-links a:hover { color: #ffffff; text-decoration: underline; }
+.site-footer .footer-copy { color: #666; font-weight: 400; }
+
+/* =========================================
+   9. THEME TOGGLE ☀️🌙
+   ========================================= */
+.theme-btn {
+    background: none; border: none; cursor: pointer; padding: 5px; margin-right: 15px;
+    position: relative; width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center; overflow: hidden; 
+}
+.theme-icon { position: absolute; top: 50%; left: 50%; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+
+.sun-icon { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); color: #333; }
+.moon-icon { opacity: 0; transform: translate(-50%, -50%) rotate(-90deg) scale(0.5); color: #333; }
+.theme-btn:hover .theme-icon { stroke-width: 2.5; }
+
+/* Dark Mode Toggle Logic */
+body.dark-mode .sun-icon { opacity: 0; transform: translate(-50%, -50%) rotate(90deg) scale(0.5); }
+body.dark-mode .moon-icon { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); color: #ffffff; }
+
+/* =========================================
+   10. HERMES AI ASSISTANT
+   ========================================= */
+.luxury-ai-wrapper {
+    position: fixed; bottom: 30px; right: 30px; z-index: 10000;
+    font-family: 'Poppins', sans-serif; display: flex; flex-direction: column; align-items: flex-end;
+}
+
+.luxury-btn {
+    padding: 0 25px; height: 56px; border-radius: 50px; background: #ffffff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    border: 2px solid transparent;
+    background-image: linear-gradient(white, white), linear-gradient(135deg, #00C6FF, #0072FF, #F6D365);
+    background-origin: border-box; background-clip: padding-box, border-box;
+    box-shadow: 0 10px 30px rgba(0, 114, 255, 0.2); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.luxury-btn .luxury-icon { width: 28px; height: auto; object-fit: contain; display: block; transform: translateY(-3px); transition: transform 0.3s ease; }
+.luxury-btn .btn-text { font-weight: 700; font-size: 1.05rem; line-height: 1; padding-top: 1px; margin: 0; background: linear-gradient(135deg, #333, #000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.5px; }
+
+.luxury-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(0, 114, 255, 0.3); }
+.luxury-btn:hover .luxury-icon { transform: translateY(-3px) rotate(-15deg) scale(1.1); }
+
+.luxury-chat-box {
+    width: 350px; height: 500px; background: #ffffff; border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05);
+    position: absolute; bottom: 0; right: 0;
+    opacity: 0; transform: scale(0) translateY(40px); transform-origin: bottom right; pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.luxury-ai-wrapper.open .luxury-btn { opacity: 0; pointer-events: none; transform: scale(0.5); }
+.luxury-ai-wrapper.open .luxury-chat-box { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+
+/* Chat UI */
+.chat-header { background: linear-gradient(135deg, #00C6FF, #0072FF); padding: 18px; display: flex; justify-content: space-between; align-items: center; color: white; }
+.header-brand { font-weight: 700; font-size: 1.1rem; display: flex; gap: 8px; align-items: center; }
+.chat-header .luxury-icon-small { width: 22px; height: auto; filter: invert(1) brightness(2); }
+.close-btn { background: none; border: none; color: white; font-size: 1.8rem; cursor: pointer; opacity: 0.8; }
+.close-btn:hover { opacity: 1; }
+
+.chat-body { flex: 1; padding: 20px; background: #f8faff; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.ai-msg { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+.ai-msg.bot { background: #ffffff; color: #333; border-bottom-left-radius: 4px; border: 1px solid #eee; }
+.ai-msg.user { background: #0072FF; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+.chat-input-area { padding: 15px; background: #fff; border-top: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; }
+.chat-input-area input { flex: 1; border: 1px solid #e0e0e0; border-radius: 25px; padding: 12px 20px; outline: none; font-size: 0.95rem; transition: border 0.3s; background: #f9f9f9; }
+.chat-input-area input:focus { border-color: #0072FF; background: #fff; }
+.send-btn { width: 45px; height: 45px; border-radius: 50%; background: #0072FF; color: white; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.2s; }
+.send-btn:hover { background: #005bb5; transform: scale(1.1); }
+
+/* =========================================
+   11. DARK MODE OVERRIDES (GROUPED)
+   ========================================= */
+body.dark-mode { background-color: #121212; color: #e0e0e0; }
+body.dark-mode .modern-navbar { background: rgba(18, 18, 18, 0.9) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+body.dark-mode .nav-logo { color: #ffffff; }
+body.dark-mode .nav-menu li a { color: #e0e0e0; }
+body.dark-mode .nav-menu li a:hover, body.dark-mode .nav-menu li a.active { color: #ffffff; }
+body.dark-mode .nav-menu li a::after { background-color: #ffffff; }
+body.dark-mode .hamburger-btn { color: #ffffff; }
+body.dark-mode .search-btn { color: #ffffff; }
+body.dark-mode .search-input { background: transparent !important; color: #fff; border-bottom: 1px solid #ffffff; }
+body.dark-mode .search-results { background: rgba(30, 30, 30, 0.9); border-color: #444; }
+body.dark-mode .search-results li a { color: #eee; }
+body.dark-mode .search-results li a:hover { background: rgba(255, 255, 255, 0.1); }
+body.dark-mode .site-footer { border-top: 1px solid #333; }
+body.dark-mode .luxury-btn { background-image: linear-gradient(#1e1e1e, #1e1e1e), linear-gradient(135deg, #00C6FF, #0072FF, #F6D365); }
+body.dark-mode .luxury-btn .btn-text { background: none; -webkit-text-fill-color: white; }
+body.dark-mode .luxury-btn .luxury-icon { filter: invert(1) brightness(2); }
+body.dark-mode .luxury-chat-box { background: #1e1e1e; border-color: #333; }
+body.dark-mode .chat-body { background: #121212; }
+body.dark-mode .ai-msg.bot { background: #2c2c2c; color: #fff; border-color: #444; }
+body.dark-mode .chat-input-area { background: #1e1e1e; border-top-color: #333; }
+body.dark-mode .chat-input-area input { background: #2c2c2c; border-color: #444; color: white; }
+
+/* =========================================
+   12. MEDIA QUERIES (MOBILE) 📱 (Nav & Search & AI)
+   ========================================= */
+@media (max-width: 900px) {
+    .hamburger-btn { display: block; }
+    .nav-menu {
+        position: absolute; top: 70px; left: 0; width: 100%;
+        background: rgba(255, 255, 255, 0.75); 
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 0; margin: 0;
+        border-radius: 0 0 15px 15px; 
+        flex-direction: column; gap: 0;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        display: none; z-index: 999;
+    }
+    .nav-menu.active { display: flex; animation: slideDownMenu 0.3s ease-out; }
+    .nav-menu li { width: 100%; text-align: center; }
+    .nav-menu li a { display: block; padding: 15px; font-size: 1.1rem; font-weight: 600; color: #333; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, 0.3); transition: all 0.3s; }
+    .nav-menu li a:hover { background: rgba(255, 255, 255, 0.5); padding-left: 20px; color: #000; }
+    .nav-menu li a::after { display: none; }
+    
+    body.dark-mode .nav-menu { background: rgba(20, 20, 20, 0.95); border-bottom: 1px solid #333; }
+    body.dark-mode .nav-menu li a { color: #fff; border-bottom: 1px solid #333; }
+}
+@keyframes slideDownMenu { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 768px) {
+    .nav-logo { font-size: 1.3rem !important; white-space: nowrap !important; display: inline-block !important; width: auto !important; margin: 0 !important; }
+    .search-btn { padding: 10px !important; }
+    
+    .search-box.active {
+        position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 70px !important; 
+        background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(10px) !important; -webkit-backdrop-filter: blur(10px);
+        display: flex; align-items: center; padding: 0 20px !important; z-index: 999999 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .search-box.active .search-input {
+        display: block !important; width: 100% !important; height: 40px !important; background: transparent !important;
+        border: none !important; border-bottom: 2px solid #000 !important; border-radius: 0 !important;
+        font-size: 1.1rem !important; padding-left: 5px !important; margin-left: 10px !important; opacity: 1 !important; position: static !important;
+    }
+    .search-box.active .search-btn { transform: rotate(90deg); font-size: 1.2rem; }
+    
+    .search-results {
+        position: fixed !important; top: 70px !important; left: 0 !important; width: 100% !important; height: auto; max-height: 60vh;
+        background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(15px); border-top: 1px solid #eee;
+        overflow-y: auto !important; z-index: 999998 !important; border-radius: 0 0 15px 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); scrollbar-width: none;
+    }
+    .search-results::-webkit-scrollbar { display: none; }
+    .search-results li a { padding: 15px 20px !important; border-bottom: 1px solid rgba(0,0,0,0.05); display: block; font-size: 1rem; }
+    
+    body.dark-mode .search-box.active { background: rgba(18, 18, 18, 0.95) !important; }
+    body.dark-mode .search-box.active .search-input { color: #fff !important; border-bottom: 2px solid #fff !important; }
+    body.dark-mode .search-results { background: rgba(30, 30, 30, 0.95) !important; border-top: 1px solid #444; }
+    body.dark-mode .search-results li a { color: #eee; border-bottom: 1px solid #444; }
+    body.dark-mode .search-box.active .search-btn { color: white; }
+    body.dark-mode .nav-logo { color: #fff !important; }
+    
+    .luxury-btn {
+        width: 50px !important; height: 50px !important; border-radius: 50% !important; padding: 0 !important;
+        justify-content: center !important; gap: 0 !important; bottom: 20px; right: 20px !important;
+    }
+    .luxury-btn .btn-text { display: none !important; }
+    .luxury-btn .luxury-icon { width: 24px !important; height: auto !important; margin: 0 !important; transform: none !important; }
+    .luxury-ai-wrapper { bottom: 20px; right: 20px !important; }
+}
