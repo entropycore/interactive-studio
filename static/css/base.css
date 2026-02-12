@@ -30,7 +30,7 @@ a { text-decoration: none; }
     color: rgb(240, 238, 238);
     display: flex;
     align-items: center;
-    /* ✅ رجعت sticky كيفما كانت فالكود الأصلي ديالك */
+    
     position: sticky;
     top: 0;
     z-index: 9999;
@@ -69,7 +69,7 @@ a { text-decoration: none; }
 .search-btn { background: none; border: none; color: rgb(0, 0, 0); cursor: pointer; font-size: 1.2rem; padding: 5px; transition: transform 0.3s; }
 .search-btn:hover { transform: scale(1.1); }
 
-/* دمجت الخصائص المكررة فكلاس واحد */
+
 .search-input { 
     width: 0; 
     border: none; 
