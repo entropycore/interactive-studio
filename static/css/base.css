@@ -21,22 +21,31 @@ body {
 a { text-decoration: none; }
 
 /* =========================================
-   3. NAVBAR (ORIGINAL STICKY LOGIC)
+   3. MODERN GLASS NAVBAR (Rounded Style) 🧊
    ========================================= */
 .modern-navbar {
-    width: 100%;
-    height: 100px; 
-    background: #fdfbfb;
-    color: rgb(240, 238, 238);
+    width: 96%; 
+    max-width: 1400px;
+    height: 85px; 
+    margin: 15px auto; 
+    position: sticky;
+    top: 15px; 
+    z-index: 9999;
+    
+    /* ✨ REAL GLASS EFFECT (Light Mode) */
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    
+    /* 🟢 Rounded Borders & Shadow */
+    border-radius: 20px; 
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+    
     display: flex;
     align-items: center;
-    
-    position: sticky;
-    top: 0;
-    z-index: 9999;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    font-family: 'Poppins', sans-serif;
-    padding: 0 20px; 
+    padding: 0 40px;
+    transition: all 0.3s ease-in-out;
 }
 
 .nav-container { 
@@ -49,20 +58,27 @@ a { text-decoration: none; }
     height: 70px; 
 }
 
+/* --- Style dyal ktaba --- */
 .nav-logo { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 1.6rem;
     font-weight: 800;
     color: #000; 
     text-decoration: none; 
-    letter-spacing: 1px; 
+    letter-spacing: -0.5px; 
 }
 
-.nav-menu { display: flex; list-style: none; margin: 0; padding: 0; gap: 30px; }
-.nav-menu li a { color: rgba(6, 5, 5, 0.7); text-decoration: none; font-size: 1rem; position: relative; transition: color 0.3s; }
-.nav-menu li a:hover, .nav-menu li a.active { color: rgb(5, 5, 5); }
-.nav-menu li a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 0; background-color: rgb(0, 0, 0); transition: width 0.3s ease; }
-.nav-menu li a.active::after, .nav-menu li a:hover::after { width: 100%; }
+.nav-menu { display: flex; list-style: none; margin: 0; padding: 0; gap: 35px; }
+.nav-menu li a { 
+    color: rgba(0, 0, 0, 0.75); 
+    text-decoration: none; 
+    font-size: 1rem; 
+    font-weight: 600;
+    position: relative; 
+    transition: color 0.3s; 
+}
+.nav-menu li a:hover, .nav-menu li a.active { color: #000; }
+
 
 /* --- Search Bar (Cleaned Duplicates) --- */
 .search-box { position: relative; display: flex; align-items: center; }
@@ -219,14 +235,34 @@ body.dark-mode .moon-icon { opacity: 1; transform: translate(-50%, -50%) rotate(
    11. DARK MODE OVERRIDES (GROUPED)
    ========================================= */
 body.dark-mode { background-color: #121212; color: #e0e0e0; }
-body.dark-mode .modern-navbar { background: rgba(18, 18, 18, 0.9) !important; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+
+
+body.dark-mode .modern-navbar { 
+    /* ✨ REAL GLASS EFFECT (Dark Mode) */
+    background: rgba(20, 20, 25, 0.6) !important; 
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); 
+}
+
 body.dark-mode .nav-logo { color: #ffffff; }
-body.dark-mode .nav-menu li a { color: #e0e0e0; }
+body.dark-mode .nav-menu li a { color: rgba(255, 255, 255, 0.7); }
 body.dark-mode .nav-menu li a:hover, body.dark-mode .nav-menu li a.active { color: #ffffff; }
 body.dark-mode .nav-menu li a::after { background-color: #ffffff; }
-body.dark-mode .hamburger-btn { color: #ffffff; }
-body.dark-mode .search-btn { color: #ffffff; }
-body.dark-mode .search-input { background: transparent !important; color: #fff; border-bottom: 1px solid #ffffff; }
+
+/* Icons & Search in Dark Mode */
+body.dark-mode .search-btn, 
+body.dark-mode .hamburger-btn, 
+body.dark-mode .moon-icon { color: #ffffff !important; }
+
+body.dark-mode .search-input { 
+    background: transparent !important; 
+    color: #fff; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5); 
+}
+
+
 body.dark-mode .search-results { background: rgba(30, 30, 30, 0.9); border-color: #444; }
 body.dark-mode .search-results li a { color: #eee; }
 body.dark-mode .search-results li a:hover { background: rgba(255, 255, 255, 0.1); }
@@ -274,7 +310,7 @@ body.dark-mode .chat-input-area input { background: #2c2c2c; border-color: #444;
     .search-box.active {
         position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 70px !important; 
         background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(10px) !important; -webkit-backdrop-filter: blur(10px);
-        display: flex; align-items: center; padding: 0 20px !important; z-index: 999999 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        display: flex; align-items: center; padding: 0 20px !important; z-index: 999999 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 20px !important;
     }
     .search-box.active .search-input {
         display: block !important; width: 100% !important; height: 40px !important; background: transparent !important;
