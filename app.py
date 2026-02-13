@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify,flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 import os
 import uuid
 import base64
 import json
+import shutil  # 1. Zidna hada bach n-copiew tsawr
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
@@ -14,6 +15,9 @@ except ImportError:
     MediaProcessor = None
 # Import AI Logic
 from modules.ai_assistant import ArtAssistant
+
+# 2. Zidna Import dyal Assets Manager
+from modules.assets_manager import get_art_wallpapers
 
 app = Flask(__name__)
 
@@ -107,20 +111,33 @@ def send_message():
     
     return jsonify({"error": "Chat not found"}), 404
 
-# --- ROUTES DES AUTRES MODULES (Bhal 9bila) ---
+# --- ROUTES DES AUTRES MODULES  ---
 @app.route('/gallery')
 def gallery():
-    drawings = []
-    data_art = []
-    edited = []
+    files = []
     if os.path.exists(app.config['OUTPUT_FOLDER']):
         files = os.listdir(app.config['OUTPUT_FOLDER'])
+       
         files.sort(key=lambda x: os.path.getmtime(os.path.join(app.config['OUTPUT_FOLDER'], x)), reverse=True)
-        for f in files:
-            if f.startswith('drawing_'): drawings.append(f)
-            elif f.startswith('chart_') or f.startswith('data_') or f.startswith('wave_'): data_art.append(f)
-            elif f.startswith('edited_'): edited.append(f)
-    return render_template('gallery.html', drawings=drawings, data_art=data_art, edited=edited)
+    
+   
+    drawings = [f for f in files if f.startswith('drawing_')]
+    
+    
+    saved_assets = [f for f in files if f.startswith('saved_')]
+    
+    
+    data_art = [f for f in files if f.startswith(('chart_', 'data_', 'wave_'))]
+    edited = [f for f in files if f.startswith('edited_')]
+
+    
+    return render_template('gallery.html', 
+                           drawings=drawings, 
+                           saved_assets=saved_assets, 
+                           data_art=data_art, 
+                           edited=edited)
+
+
 
 @app.route('/generative', methods=['GET', 'POST'])
 def generative():
@@ -185,11 +202,27 @@ def editor():
         with open(note_path, 'r', encoding='utf-8') as f: content = f.read()
     return render_template('editor.html', content=content)
 
+# --- 3. UPDATED ASSETS ROUTE (JSON Logic) ---
 @app.route('/assets')
 def assets():
-    assets_dir = os.path.join('static', 'wallpapers')
-    os.makedirs(assets_dir, exist_ok=True)
-    return render_template('assets.html', wallpapers=os.listdir(assets_dir))
+    wallpapers_data = get_art_wallpapers()
+    return render_template('assets.html', wallpapers=wallpapers_data)
+
+# --- 4. NEW API: ADD TO GALLERY ---
+@app.route('/api/add-to-gallery', methods=['POST'])
+def add_to_gallery():
+    data = request.json
+    filename = data.get('filename')
+    
+    source_path = os.path.join('static', 'wallpapers', filename)
+    new_filename = f"saved_{uuid.uuid4().hex}_{filename}"
+    dest_path = os.path.join(app.config['OUTPUT_FOLDER'], new_filename)
+    
+    if os.path.exists(source_path):
+        shutil.copy(source_path, dest_path)
+        return jsonify({"success": True})
+    else:
+        return jsonify({"success": False}), 404
 
 # Route l'9dima dyal widget (optionnel)
 @app.route('/chat', methods=['POST'])
@@ -217,7 +250,6 @@ def search():
     if not query:
         return jsonify([])
     
-  
     results = [
         item for item in SITE_CONTENT 
         if query in item['title'].lower() or query in item['keywords']
@@ -226,14 +258,8 @@ def search():
     return jsonify(results[:5])
 
 
-
-
-
-# --- NEW: ROUTE CONTACT FORM ---
-  
-
+# --- ROUTE CONTACT FORM ---
 # flash messages
-app.secret_key = 'super_secret_key' 
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -249,18 +275,16 @@ def contact():
             return redirect(url_for('contact'))
             
         data = {"name": name, "email": email, "message": message}
-        with open('messages.json', 'a') as f:
-            f.write(json.dumps(data) + "\n")
+        try:
+            with open('messages.json', 'a') as f:
+                f.write(json.dumps(data) + "\n")
+        except:
+            pass
             
         flash("Message sent successfully! 🚀", "success")
         return redirect(url_for('contact'))
 
     return render_template('contact.html')
-
-
-
-
-
 
 @app.route('/tutorials')
 def tutorials():
@@ -270,10 +294,5 @@ def tutorials():
 def about():
     return render_template('construction.html')
 
-
-
-
-
-
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=5000, debug=True)   #app.run(debug=True) 
+    app.run(host='0.0.0.0', port=5000, debug=True)    #app.run(debug=True) 

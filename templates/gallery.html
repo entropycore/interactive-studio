@@ -1,68 +1,149 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <h1 class="fw-bold">🖼️ Art Gallery</h1>
-    <p class="text-muted">Explore your creations by category.</p>
-</div>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/assets.css') }}">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-<ul class="nav nav-tabs nav-fill mb-4" id="galleryTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active fw-bold" id="drawings-tab" data-bs-toggle="tab" data-bs-target="#drawings" type="button" role="tab">
-            🎨 Drawings ({{ drawings|length }})
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab">
-            📊 Data Charts ({{ data_art|length }})
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold" id="edited-tab" data-bs-toggle="tab" data-bs-target="#edited" type="button" role="tab">
-            🛠️ Edited Photos ({{ edited|length }})
-        </button>
-    </li>
-</ul>
+<div class="container-fluid px-4 py-5">
+    
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">My Art Gallery</h1>
+        <p class="text-muted">Your creative portfolio & saved inspiration</p>
+    </div>
 
-<div class="tab-content" id="galleryTabsContent">
+    <ul class="nav nav-pills justify-content-center mb-5 gap-3" id="galleryTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active rounded-pill px-4 py-2" id="drawings-tab" data-bs-toggle="pill" data-bs-target="#drawings" type="button">
+                🎨 Drawings <span class="badge bg-dark ms-2">{{ drawings|length }}</span>
+            </button>
+        </li>
+        
+        <li class="nav-item">
+            <button class="nav-link rounded-pill px-4 py-2" id="saved-tab" data-bs-toggle="pill" data-bs-target="#saved" type="button">
+                🖼️ My Collection <span class="badge bg-dark ms-2">{{ saved_assets|length }}</span>
+            </button>
+        </li>
 
-    <div class="tab-pane fade show active" id="drawings" role="tabpanel">
-        {% if drawings %}
-            <div class="row" data-masonry='{"percentPosition": true }'>
+        <li class="nav-item">
+            <button class="nav-link rounded-pill px-4 py-2" id="data-tab" data-bs-toggle="pill" data-bs-target="#data" type="button">
+                📊 Data <span class="badge bg-dark ms-2">{{ data_art|length }}</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link rounded-pill px-4 py-2" id="edited-tab" data-bs-toggle="pill" data-bs-target="#edited" type="button">
+                🛠️ Edited <span class="badge bg-dark ms-2">{{ edited|length }}</span>
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="galleryTabsContent">
+        
+        <div class="tab-pane fade show active" id="drawings">
+            <div class="masonry-grid">
                 {% for img in drawings %}
-                    {% include 'gallery_item.html' %}
+                <div class="grid-item">
+                    <div class="art-card">
+                        <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy" onclick="window.open(this.src)">
+                        
+                        <div class="hover-actions" onclick="event.stopPropagation()">
+                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download">
+                                <i class="ph ph-download-simple"></i>
+                            </a>
+                        </div>
+
+                        <div class="card-info">
+                            <h6 class="art-title">Sketch #{{ loop.index }}</h6>
+                            <span class="art-artist">My Drawing</span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5 w-100">
+                    <p class="text-muted">No drawings yet. Start creating in <a href="/generative">Sketch Pad</a>!</p>
+                </div>
                 {% endfor %}
             </div>
-        {% else %}
-            <p class="text-center text-muted py-5">No drawings yet. <a href="{{ url_for('generative') }}">Start Drawing!</a></p>
-        {% endif %}
-    </div>
+        </div>
 
-    <div class="tab-pane fade" id="data" role="tabpanel">
-        {% if data_art %}
-            <div class="row">
+        <div class="tab-pane fade" id="saved">
+            <div class="masonry-grid">
+                {% for img in saved_assets %}
+                <div class="grid-item">
+                    <div class="art-card">
+                        <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy" onclick="window.open(this.src)">
+                        
+                        <div class="hover-actions" onclick="event.stopPropagation()">
+                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download High-Res">
+                                <i class="ph ph-download-simple"></i>
+                            </a>
+                        </div>
+
+                        <div class="card-info">
+                            <h6 class="art-title">Masterpiece</h6>
+                            <span class="art-artist">Saved from Assets</span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5 w-100">
+                    <p class="text-muted">Your collection is empty. Go to <a href="/assets">Assets</a> to save some art!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="data">
+            <div class="masonry-grid">
                 {% for img in data_art %}
-                    {% include 'gallery_item.html' %}
+                <div class="grid-item">
+                    <div class="art-card">
+                        <img src="{{ url_for('static', filename='outputs/' + img) }}" style="padding: 10px; background: white;">
+                        <div class="hover-actions">
+                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download Chart">
+                                <i class="ph ph-download-simple"></i>
+                            </a>
+                        </div>
+                        <div class="card-info">
+                            <h6 class="art-title">Data Viz</h6>
+                            <span class="art-artist">{{ img[:15] }}...</span>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
-        {% else %}
-            <p class="text-center text-muted py-5">No charts created. <a href="{{ url_for('data_art') }}">Visualize Data!</a></p>
-        {% endif %}
-    </div>
+        </div>
 
-    <div class="tab-pane fade" id="edited" role="tabpanel">
-        {% if edited %}
-            <div class="row">
+        <div class="tab-pane fade" id="edited">
+             <div class="masonry-grid">
                 {% for img in edited %}
-                    {% include 'gallery_item.html' %}
+                <div class="grid-item">
+                    <div class="art-card">
+                        <img src="{{ url_for('static', filename='outputs/' + img) }}">
+                        <div class="hover-actions">
+                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download">
+                                <i class="ph ph-download-simple"></i>
+                            </a>
+                        </div>
+                        <div class="card-info">
+                            <h6 class="art-title">Edited Image</h6>
+                            <span class="art-artist">Filter Applied</span>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
-        {% else %}
-            <p class="text-center text-muted py-5">No edited photos. <a href="{{ url_for('tools') }}">Edit a Photo!</a></p>
-        {% endif %}
-    </div>
+        </div>
 
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" async></script>
+<style>
+    /* Fix Bootstrap Nav Pills Colors */
+    .nav-pills .nav-link { color: var(--text-main); background: transparent; border: 1px solid #ddd; }
+    .nav-pills .nav-link.active { background: var(--text-main); color: var(--bg-card); border-color: var(--text-main); }
+    body.dark-mode .nav-pills .nav-link { border-color: #333; }
+    
+    /* Masonry fix for Gallery */
+    .masonry-grid { display: block; } /* Ensure block display */
+</style>
 {% endblock %}

@@ -1,168 +1,93 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/assets.css') }}">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-<div class="text-center mb-5">
-    <h1 class="fw-bold">Art Asset Store</h1>
-    <p class="text-muted">High-quality wallpapers & textures for your projects.</p>
-</div>
+    <div class="assets-header text-center py-5">
+        <h1 class="display-4 fw-bold">Fine Art Collection</h1>
+        <p class="text-muted">Curated masterpieces for your creative space</p>
+        
+        <div class="filter-bar mt-4 d-flex justify-content-center gap-2">
+            <button class="filter-chip active" data-filter="all">All Art</button>
+            <button class="filter-chip" data-filter="Renaissance">Renaissance</button>
+            <button class="filter-chip" data-filter="Impressionism">Impressionism</button>
+            <button class="filter-chip" data-filter="Classic Art">Classic</button>
+        </div>
+    </div>
 
-<div class="row" id="galleryGrid">
-    {% for img in wallpapers %}
-    <div class="col-md-4 mb-4">
-        <div class="card border-0 shadow-sm h-100 asset-card">
-            <div class="card-img-top overflow-hidden position-relative" style="height: 250px; cursor: pointer;">
-                
-                <img src="{{ url_for('static', filename='wallpapers/' + img) }}" 
-                     class="w-100 h-100 preview-trigger gallery-image" 
-                     style="object-fit: cover; transition: transform 0.3s;" 
-                     data-index="{{ loop.index0 }}"
-                     data-full="{{ url_for('static', filename='wallpapers/' + img) }}"
-                     onclick="openGallery(this)">
-                     
+    <div class="container-fluid px-4">
+        <div class="masonry-grid" id="artGrid">
+            {% for art in wallpapers %}
+            <div class="grid-item" data-movement="{{ art.movement }}">
+                <div class="art-card" 
+                     onclick="openArtModal(this)"
+                     data-file="{{ art.file }}"
+                     data-title="{{ art.title }}"
+                     data-artist="{{ art.artist }}"
+                     data-year="{{ art.year }}"
+                     data-museum="{{ art.museum }}">
+                    
+                    <img src="{{ url_for('static', filename='wallpapers/' + art.file) }}" loading="lazy">
+                    
+                    <div class="hover-actions" onclick="event.stopPropagation()">
+                        <a href="{{ url_for('static', filename='wallpapers/' + art.file) }}" 
+                           download 
+                           class="mini-btn" 
+                           data-tooltip="Download">
+                            <i class="ph ph-download-simple"></i>
+                        </a>
+                        
+                        <button class="mini-btn add-fast-btn" 
+                                data-filename="{{ art.file }}" 
+                                data-tooltip="Save to Gallery">
+                            <i class="ph ph-plus"></i>
+                        </button>
+                    </div>
+
+                    <div class="card-info">
+                        <h6 class="art-title">{{ art.title }}</h6>
+                        <span class="art-artist">{{ art.artist }}</span>
+                    </div>
+                    
+                    <div class="card-overlay"></div>
+                </div>
             </div>
-            
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-capitalize">{{ img.split('.')[0] }}</span>
-                <a href="{{ url_for('static', filename='wallpapers/' + img) }}" download class="btn btn-sm btn-dark rounded-pill px-3">
-                    Download ⬇️
-                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="artDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="col-lg-8 modal-img-col">
+                    <img id="modalImg" src="">
+                </div>
+                <div class="col-lg-4 modal-info-col">
+                    <button type="button" class="btn-close-modal" data-bs-dismiss="modal">×</button>
+                    <div class="mt-4">
+                        <span class="badge bg-light text-dark border mb-2" id="modalMovement">Classic</span>
+                        <h2 class="fw-bold" id="modalTitle">Title</h2>
+                        <p class="text-muted mb-4">by <span id="modalArtist">Artist</span></p>
+                        
+                        <div class="d-flex justify-content-between mb-5 border-bottom pb-3">
+                            <div><small class="text-muted d-block">YEAR</small><span id="modalYear" class="fw-bold">Unknown</span></div>
+                            <div><small class="text-muted d-block">MUSEUM</small><span id="modalMuseum" class="fw-bold">Archive</span></div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a id="downloadLink" href="#" download class="btn btn-lg">
+                                <i class="ph ph-download-simple"></i> Download Asset
+                            </a>
+                            <button id="addToGalleryBtn" class="btn btn-lg">
+                                <i class="ph ph-plus-circle"></i> Add to Gallery
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    {% else %}
-    <div class="col-12 text-center py-5 bg-light rounded">
-        <h3>📂 Store is Empty</h3>
-        <p>Add images to <code>static/wallpapers/</code> folder.</p>
-    </div>
-    {% endfor %}
-</div>
 
-<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true" onclick="closeOnBackdrop(event)">
-  <div class="modal-dialog modal-dialog-centered modal-xl"> 
-    <div class="modal-content bg-transparent border-0 position-relative"> 
-      
-        <div class="modal-body p-0 text-center d-flex align-items-center justify-content-center" style="height: 90vh;">
-            
-            <button class="nav-arrow prev-btn" onclick="changeImage(-1); event.stopPropagation();">
-                &#10094; 
-            </button>
-
-            <img id="previewImage" src="" class="img-fluid rounded shadow-lg main-preview-img" onclick="event.stopPropagation()">
-            
-            <button class="nav-arrow next-btn" onclick="changeImage(1); event.stopPropagation();">
-                &#10095; 
-            </button>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-    /* Minimalist Arrows Style */
-    .nav-arrow {
-        background: transparent;
-        border: none;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 4rem;
-        font-weight: 100;
-        padding: 0 40px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 100;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    }
-
-    .nav-arrow:hover {
-        color: #ffffff;
-        transform: translateY(-50%) scale(1.1);
-    }
-
-    .prev-btn { left: 0; }
-    .next-btn { right: 0; }
-
-    .main-preview-img {
-        max-height: 85vh;
-        max-width: 80vw;
-        object-fit: contain;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    }
-
-    /* Backdrop Blur */
-    .modal-backdrop.show {
-        opacity: 0.9 !important;
-        backdrop-filter: blur(8px);
-    }
-</style>
-
-<script>
-    let allImages = [];
-    let currentIndex = 0;
-    let myModal;
-
-    document.addEventListener('DOMContentLoaded', () => {
-        // Collect all images for navigation
-        const imgElements = document.querySelectorAll('.gallery-image');
-        imgElements.forEach((img, index) => {
-            allImages.push({
-                src: img.getAttribute('data-full'),
-                index: index
-            });
-        });
-
-        const modalEl = document.getElementById('imagePreviewModal');
-        if(modalEl) {
-            myModal = new bootstrap.Modal(modalEl);
-            
-            // Keyboard Navigation Support
-            document.addEventListener('keydown', function(e) {
-                if (!modalEl.classList.contains('show')) return;
-                
-                if (e.key === "ArrowLeft") changeImage(-1);
-                if (e.key === "ArrowRight") changeImage(1);
-                if (e.key === "Escape") myModal.hide();
-            });
-        }
-    });
-
-    function openGallery(element) {
-        currentIndex = parseInt(element.getAttribute('data-index'));
-        updateModalContent();
-        myModal.show();
-    }
-
-    function changeImage(direction) {
-        currentIndex += direction;
-        
-        // Loop Logic (First <-> Last)
-        if (currentIndex >= allImages.length) currentIndex = 0;
-        if (currentIndex < 0) currentIndex = allImages.length - 1;
-
-        updateModalContent();
-    }
-
-    function updateModalContent() {
-        const imgData = allImages[currentIndex];
-        const previewImg = document.getElementById('previewImage');
-        
-        // Simple Fade Effect
-        previewImg.style.opacity = '0.5';
-        previewImg.src = imgData.src;
-        setTimeout(() => {
-            previewImg.style.opacity = '1';
-        }, 150);
-    }
-
-    // Close Modal on Background Click
-    function closeOnBackdrop(event) {
-        if (event.target.id === 'imagePreviewModal' || event.target.classList.contains('modal-dialog')) {
-            myModal.hide();
-        }
-    }
-</script>
-
+    <script src="{{ url_for('static', filename='js/assets.js') }}"></script>
 {% endblock %}
