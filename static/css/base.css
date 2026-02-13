@@ -306,3 +306,48 @@ body.dark-mode .chat-input-area input { background: #2c2c2c; border-color: #444;
     .luxury-btn .luxury-icon { width: 24px !important; height: auto !important; margin: 0 !important; transform: none !important; }
     .luxury-ai-wrapper { bottom: 20px; right: 20px !important; }
 }
+
+
+/* =========================================
+   GLOBAL MESH GRADIENT (Base Style) 
+   ========================================= */
+
+:root {
+    
+    --bg-base: #fdfdff; 
+    --bg-mesh: 
+        radial-gradient(at 0% 0%, rgba(224, 195, 252, 0.4) 0px, transparent 50%), 
+        radial-gradient(at 100% 0%, rgba(142, 197, 252, 0.4) 0px, transparent 50%), 
+        radial-gradient(at 50% 100%, rgba(255, 192, 203, 0.3) 0px, transparent 50%);
+    
+    --text-main: #1a1a1a;
+    --bg-card-glass: rgba(255, 255, 255, 0.7); 
+}
+
+body.dark-mode {
+    
+    --bg-base: #0a0510; 
+    --bg-mesh: 
+        radial-gradient(at 0% 0%, rgba(45, 3, 59, 0.7) 0px, transparent 50%), 
+        radial-gradient(at 100% 30%, rgba(129, 9, 85, 0.4) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(70, 0, 100, 0.3) 0px, transparent 50%);
+    
+    --text-main: #f0f0f0;
+    --bg-card-glass: rgba(30, 30, 30, 0.5); 
+}
+
+
+body { 
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-base) !important; 
+    background-image: var(--bg-mesh) !important;
+    background-attachment: fixed; 
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: var(--text-main);
+    transition: background 0.5s ease-in-out; 
+    min-height: 100vh;
+}
+
+
