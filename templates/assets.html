@@ -8,15 +8,15 @@
         <h1 class="display-4 fw-bold">Fine Art Collection</h1>
         <p class="text-muted">Curated masterpieces for your creative space</p>
         
-        <div class="filter-bar mt-4 d-flex justify-content-center gap-2">
+        <div class="filter-bar mt-4 d-flex justify-content-center gap-2 flex-wrap">
             <button class="filter-chip active" data-filter="all">All Art</button>
             <button class="filter-chip" data-filter="Renaissance">Renaissance</button>
             <button class="filter-chip" data-filter="Impressionism">Impressionism</button>
-            <button class="filter-chip" data-filter="Classic Art">Classic</button>
+            <button class="filter-chip" data-filter="Classic">Classic</button>
         </div>
     </div>
 
-    <div class="container-fluid px-4">
+    <div class="container-fluid px-4 pb-5">
         <div class="masonry-grid" id="artGrid">
             {% for art in wallpapers %}
             <div class="grid-item" data-movement="{{ art.movement }}">
@@ -26,9 +26,8 @@
                      data-title="{{ art.title }}"
                      data-artist="{{ art.artist }}"
                      data-year="{{ art.year }}"
-                     data-museum="{{ art.museum }}">
-                    
-                    <img src="{{ url_for('static', filename='wallpapers/' + art.file) }}" loading="lazy">
+                     data-museum="{{ art.museum }}"
+                     data-description="{{ art.description }}"> <img src="{{ url_for('static', filename='wallpapers/' + art.file) }}" loading="lazy" alt="{{ art.title }}">
                     
                     <div class="hover-actions" onclick="event.stopPropagation()">
                         <a href="{{ url_for('static', filename='wallpapers/' + art.file) }}" 
@@ -66,20 +65,32 @@
                 <div class="col-lg-4 modal-info-col">
                     <button type="button" class="btn-close-modal" data-bs-dismiss="modal">×</button>
                     <div class="mt-4">
-                        <span class="badge bg-light text-dark border mb-2" id="modalMovement">Classic</span>
+                        <span class="badge bg-light text-dark border mb-2" id="modalMovement">Art</span>
                         <h2 class="fw-bold" id="modalTitle">Title</h2>
-                        <p class="text-muted mb-4">by <span id="modalArtist">Artist</span></p>
+                        <p class="text-muted mb-3">by <span id="modalArtist">Artist</span></p>
                         
+
                         <div class="d-flex justify-content-between mb-5 border-bottom pb-3">
                             <div><small class="text-muted d-block">YEAR</small><span id="modalYear" class="fw-bold">Unknown</span></div>
                             <div><small class="text-muted d-block">MUSEUM</small><span id="modalMuseum" class="fw-bold">Archive</span></div>
                         </div>
 
+                        <div class="description-box mb-4 p-3" style="background: rgba(132, 131, 131, 0); border-radius: 8px; ;">
+                            <div><small class="text-muted d-block">DESCRIPTION:</small></div>
+
+                            
+                            <p id="modalDescription" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-main); margin: 0;">
+                                Description loading...
+                            </p>
+                        </div>
+                        
+                        
+
                         <div class="d-grid gap-2">
-                            <a id="downloadLink" href="#" download class="btn btn-lg">
+                            <a id="downloadLink" href="#" download class="btn btn-lg btn-dark">
                                 <i class="ph ph-download-simple"></i> Download Asset
                             </a>
-                            <button id="addToGalleryBtn" class="btn btn-lg">
+                            <button id="addToGalleryBtn" class="btn btn-lg btn-outline-dark">
                                 <i class="ph ph-plus-circle"></i> Add to Gallery
                             </button>
                         </div>
@@ -89,5 +100,117 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/assets.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 1. FILTER SYSTEM
+            const filterBtns = document.querySelectorAll('.filter-chip');
+            const items = document.querySelectorAll('.grid-item');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Active class
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filter = btn.dataset.filter;
+
+                    items.forEach(item => {
+                        // Check if item's movement includes the filter text (e.g., "Classic" in "Classic Art")
+                        const itemMovement = (item.dataset.movement || "").toLowerCase();
+                        const filterText = filter.toLowerCase();
+
+                        if (filter === 'all' || itemMovement.includes(filterText)) {
+                            item.style.display = 'block';
+                            setTimeout(() => item.style.opacity = '1', 50);
+                        } else {
+                            item.style.display = 'none';
+                            item.style.opacity = '0';
+                        }
+                    });
+                });
+            });
+
+            // 2. FAST ADD BUTTON
+            document.querySelectorAll('.add-fast-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const filename = this.dataset.filename;
+                    const icon = this.querySelector('i');
+                    
+                    icon.className = "ph ph-spinner ph-spin"; // Loading
+
+                    fetch('/api/add-to-gallery', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({filename: filename})
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            icon.className = "ph ph-check";
+                            this.classList.add('added');
+                            setTimeout(() => this.setAttribute('data-tooltip', 'Saved'), 2000);
+                        }
+                    })
+                    .catch(err => icon.className = "ph ph-warning");
+                });
+            });
+        });
+
+        // 3. OPEN MODAL FUNCTION
+        function openArtModal(card) {
+            // Grab data from HTML attributes
+            const file = card.dataset.file;
+            const title = card.dataset.title;
+            const artist = card.dataset.artist;
+            const year = card.dataset.year;
+            const museum = card.dataset.museum;
+            const description = card.dataset.description; // ✅ Grab description
+            const movement = card.parentElement.dataset.movement || 'Art';
+
+            // Populate Modal
+            const imgPath = '/static/wallpapers/' + file;
+            document.getElementById('modalImg').src = imgPath;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalArtist').innerText = artist;
+            document.getElementById('modalYear').innerText = year;
+            document.getElementById('modalMuseum').innerText = museum;
+            document.getElementById('modalMovement').innerText = movement;
+            
+            // ✅ Set Description
+            document.getElementById('modalDescription').innerText = description || "No description available.";
+
+            // Update Buttons
+            document.getElementById('downloadLink').href = imgPath;
+            
+            // Reset Add Button
+            const addBtn = document.getElementById('addToGalleryBtn');
+            addBtn.innerHTML = '<i class="ph ph-plus-circle"></i> Add to Gallery';
+            addBtn.classList.remove('btn-success');
+            
+            // Add Button Logic inside Modal
+            addBtn.onclick = function() {
+                const icon = this.querySelector('i');
+                icon.className = "ph ph-spinner ph-spin";
+                
+                fetch('/api/add-to-gallery', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({filename: file})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        addBtn.innerHTML = '<i class="ph ph-check"></i> Saved to Gallery';
+                        addBtn.classList.add('btn-success');
+                    }
+                });
+            };
+
+            // Show Modal (Bootstrap 5)
+            var myModal = new bootstrap.Modal(document.getElementById('artDetailModal'));
+            myModal.show();
+        }
+    </script>
 {% endblock %}
