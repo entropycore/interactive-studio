@@ -4,146 +4,309 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/assets.css') }}">
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-<div class="container-fluid px-4 py-5">
-    
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold">My Art Gallery</h1>
-        <p class="text-muted">Your creative portfolio & saved inspiration</p>
+<header class="gallery-header">
+    <div class="header-overlay"></div>
+    <div class="container h-100 d-flex flex-column justify-content-center position-relative">
+        <h1 class="display-1 fw-bold tracking-tight">The <span class="text-gradient">Collection</span></h1>
+        <p class="lead text-white-50" style="max-width: 500px;">
+               A curated archive of degital landscapes and visual explorations </p>
     </div>
+    
+    <div class="marquee-bg">
+        <span>CREATIVITY • DATA • ART • DESIGN • FUTURE • </span>
+        <span>CREATIVITY • DATA • ART • DESIGN • FUTURE • </span>
+    </div>
+</header>
 
-    <ul class="nav nav-pills justify-content-center mb-5 gap-3" id="galleryTabs" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active rounded-pill px-4 py-2" id="drawings-tab" data-bs-toggle="pill" data-bs-target="#drawings" type="button">
-                🎨 Drawings <span class="badge bg-dark ms-2">{{ drawings|length }}</span>
-            </button>
-        </li>
+<div class="sticky-filter-container">
+    <div class="glass-dock">
+        <button class="dock-item active" onclick="filterGallery('all', this)">
+            <i class="ph ph-squares-four"></i> All
+        </button>
+        <button class="dock-item" onclick="filterGallery('saved', this)">
+            <i class="ph ph-image"></i> Saved
+        </button>
+        <button class="dock-item" onclick="filterGallery('drawings', this)">
+            <i class="ph ph-paint-brush"></i> Sketches
+        </button>
+        <button class="dock-item" onclick="filterGallery('data', this)">
+            <i class="ph ph-chart-bar"></i> Data
+        </button>
+        <button class="dock-item" onclick="filterGallery('edited', this)">
+            <i class="ph ph-sliders"></i> Edited
+        </button>
+    </div>
+</div>
+
+<div class="container-fluid px-4 pb-5">
+    <div class="gallery-grid" id="galleryGrid">
         
-        <li class="nav-item">
-            <button class="nav-link rounded-pill px-4 py-2" id="saved-tab" data-bs-toggle="pill" data-bs-target="#saved" type="button">
-                🖼️ My Collection <span class="badge bg-dark ms-2">{{ saved_assets|length }}</span>
-            </button>
-        </li>
-
-        <li class="nav-item">
-            <button class="nav-link rounded-pill px-4 py-2" id="data-tab" data-bs-toggle="pill" data-bs-target="#data" type="button">
-                📊 Data <span class="badge bg-dark ms-2">{{ data_art|length }}</span>
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link rounded-pill px-4 py-2" id="edited-tab" data-bs-toggle="pill" data-bs-target="#edited" type="button">
-                🛠️ Edited <span class="badge bg-dark ms-2">{{ edited|length }}</span>
-            </button>
-        </li>
-    </ul>
-
-    <div class="tab-content" id="galleryTabsContent">
-        
-        <div class="tab-pane fade show active" id="drawings">
-            <div class="masonry-grid">
-                {% for img in drawings %}
-                <div class="grid-item">
-                    <div class="art-card">
-                        <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy" onclick="window.open(this.src)">
-                        
-                        <div class="hover-actions" onclick="event.stopPropagation()">
-                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download">
-                                <i class="ph ph-download-simple"></i>
-                            </a>
-                        </div>
-
-                        <div class="card-info">
-                            <h6 class="art-title">Sketch #{{ loop.index }}</h6>
-                            <span class="art-artist">My Drawing</span>
-                        </div>
+        {% for img in saved_assets %}
+        <div class="gallery-item category-saved">
+            <div class="image-wrapper">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy">
+                <div class="item-overlay">
+                    <div class="overlay-content">
+                        <h5>Masterpiece</h5>
+                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">View</button>
                     </div>
                 </div>
-                {% else %}
-                <div class="text-center py-5 w-100">
-                    <p class="text-muted">No drawings yet. Start creating in <a href="/generative">Sketch Pad</a>!</p>
-                </div>
-                {% endfor %}
             </div>
         </div>
+        {% endfor %}
 
-        <div class="tab-pane fade" id="saved">
-            <div class="masonry-grid">
-                {% for img in saved_assets %}
-                <div class="grid-item">
-                    <div class="art-card">
-                        <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy" onclick="window.open(this.src)">
-                        
-                        <div class="hover-actions" onclick="event.stopPropagation()">
-                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download High-Res">
-                                <i class="ph ph-download-simple"></i>
-                            </a>
-                        </div>
-
-                        <div class="card-info">
-                            <h6 class="art-title">Masterpiece</h6>
-                            <span class="art-artist">Saved from Assets</span>
-                        </div>
+        {% for img in drawings %}
+        <div class="gallery-item category-drawings">
+            <div class="image-wrapper">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy">
+                <div class="item-overlay">
+                    <div class="overlay-content">
+                        <h5>Sketch</h5>
+                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">View</button>
                     </div>
                 </div>
-                {% else %}
-                <div class="text-center py-5 w-100">
-                    <p class="text-muted">Your collection is empty. Go to <a href="/assets">Assets</a> to save some art!</p>
-                </div>
-                {% endfor %}
             </div>
         </div>
+        {% endfor %}
 
-        <div class="tab-pane fade" id="data">
-            <div class="masonry-grid">
-                {% for img in data_art %}
-                <div class="grid-item">
-                    <div class="art-card">
-                        <img src="{{ url_for('static', filename='outputs/' + img) }}" style="padding: 10px; background: white;">
-                        <div class="hover-actions">
-                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download Chart">
-                                <i class="ph ph-download-simple"></i>
-                            </a>
-                        </div>
-                        <div class="card-info">
-                            <h6 class="art-title">Data Viz</h6>
-                            <span class="art-artist">{{ img[:15] }}...</span>
-                        </div>
+        {% for img in data_art %}
+        <div class="gallery-item category-data">
+            <div class="image-wrapper bg-white p-3">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" style="object-fit: contain;">
+                <div class="item-overlay">
+                    <div class="overlay-content">
+                        <h5>Data Viz</h5>
+                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">Analyze</button>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
+        {% endfor %}
 
-        <div class="tab-pane fade" id="edited">
-             <div class="masonry-grid">
-                {% for img in edited %}
-                <div class="grid-item">
-                    <div class="art-card">
-                        <img src="{{ url_for('static', filename='outputs/' + img) }}">
-                        <div class="hover-actions">
-                            <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="mini-btn" data-tooltip="Download">
-                                <i class="ph ph-download-simple"></i>
-                            </a>
-                        </div>
-                        <div class="card-info">
-                            <h6 class="art-title">Edited Image</h6>
-                            <span class="art-artist">Filter Applied</span>
-                        </div>
+        {% for img in edited %}
+        <div class="gallery-item category-edited">
+            <div class="image-wrapper">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy">
+                <div class="item-overlay">
+                    <div class="overlay-content">
+                        <h5>Edited</h5>
+                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">Download</button>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
+        {% endfor %}
 
+    </div>
+    
+    <div id="empty-message" class="text-center py-5 d-none">
+        <h3 class="text-muted">Nothing to show here yet.</h3>
     </div>
 </div>
 
 <style>
-    /* Fix Bootstrap Nav Pills Colors */
-    .nav-pills .nav-link { color: var(--text-main); background: transparent; border: 1px solid #ddd; }
-    .nav-pills .nav-link.active { background: var(--text-main); color: var(--bg-card); border-color: var(--text-main); }
-    body.dark-mode .nav-pills .nav-link { border-color: #333; }
+    /* =========================================
+       1. HERO STYLES (كيف ما هما)
+       ========================================= */
+    .gallery-header {
+        height: 80vh;
+        width: 100%;
+        position: relative;
+        background: url('/static/assets/gallery_bg.jpg') no-repeat center center/cover;
+        background-attachment: fixed;
+        overflow: hidden;
+        color: white;
+        margin-bottom: -50px; 
+    }
+    .header-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+        z-index: 1;
+    }
+    .gallery-header .container { z-index: 2; }
     
-    /* Masonry fix for Gallery */
-    .masonry-grid { display: block; } /* Ensure block display */
+    
+    .text-gradient {
+        background: linear-gradient(90deg, #fff, #a5b4fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .marquee-bg {
+        position: absolute; bottom: 25px; width: 100%;
+        white-space: nowrap; opacity: 0.1;
+        font-size: 5rem; font-weight: 900;
+        animation: marquee 30s linear infinite;
+        z-index: 1; pointer-events: none;
+    }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+
+/* =========================================
+       2. STICKY DOCK (THE MAGIC FIX 🎩)
+       ========================================= */
+    .sticky-filter-container {
+        position: sticky;
+        
+        top: 0; 
+        z-index: 100;
+        
+        display: flex;
+        justify-content: center;
+        
+        padding-top: 100px; 
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        width: 100%;
+
+        
+        background-color: var(--bg-base);
+        background-image: var(--bg-mesh);
+        background-attachment: fixed;      
+        background-size: cover;
+        background-repeat: no-repeat;
+        
+        
+        mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    }
+
+    
+    body.dark-mode .sticky-filter-container {
+        background-color: var(--bg-base);
+        background-image: var(--bg-mesh);
+    }
+
+    .glass-dock {
+        pointer-events: auto;
+        display: flex;
+        gap: 10px;
+        
+        
+        background: rgba(255, 255, 255, 0.25); 
+        backdrop-filter: blur(15px) saturate(180%);
+        -webkit-backdrop-filter: blur(15px) saturate(180%);
+        
+        padding: 10px;
+        border-radius: 50px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: 0.3s;
+    }
+    
+    .glass-dock:hover { transform: translateY(-3px); }
+
+    .dock-item {
+        background: transparent; border: none;
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 600; font-size: 0.9rem;
+        transition: 0.3s;
+        display: flex; align-items: center; gap: 8px;
+        cursor: pointer;
+    }
+
+    .dock-item:hover { background: rgba(0,0,0,0.05); }
+    body.dark-mode .dock-item:hover { background: rgba(255,255,255,0.1); }
+    
+    .dock-item.active {
+        background: #000;
+        color: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    body.dark-mode .dock-item.active { background: #fff; color: #000; }
+    body.dark-mode .dock-item { color: #fff; }
+
+
+    /* =========================================
+       3. GALLERY GRID (NO MASKS NEEDED NOW)
+       ========================================= */
+    .gallery-grid {
+        column-count: 4;
+        column-gap: 20px;
+        
+        padding-top: 10px;
+    }
+
+    .gallery-item {
+        break-inside: avoid;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .image-wrapper {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        cursor: pointer;
+        background: var(--bg-card-glass);
+    }
+
+    .image-wrapper img {
+        width: 100%;
+        display: block;
+        transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .image-wrapper:hover img { transform: scale(1.05); }
+
+    .item-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        opacity: 0;
+        transition: 0.3s;
+        display: flex; align-items: flex-end; justify-content: center;
+        padding-bottom: 20px;
+    }
+    .image-wrapper:hover .item-overlay { opacity: 1; }
+    
+    .overlay-content button {
+        background: white; color: black; border: none;
+        padding: 8px 20px; border-radius: 50px;
+        font-weight: 600; font-size: 0.9rem;
+        cursor: pointer;
+    }
+    .overlay-content button:hover { background: #f0f0f0; }
+
+    /* Responsive */
+    @media (max-width: 992px) { .gallery-grid { column-count: 3; } }
+    @media (max-width: 768px) { 
+        .gallery-grid { column-count: 2; } 
+        .gallery-header { height: 50vh; }
+        .dock-item span { display: none; }
+        .sticky-filter-container { padding-top: 80px; } 
+    }
+    @media (max-width: 576px) { .gallery-grid { column-count: 1; } }
+
 </style>
+
+<script>
+    function filterGallery(category, btn) {
+        document.querySelectorAll('.dock-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const items = document.querySelectorAll('.gallery-item');
+        let hasVisible = false;
+
+        items.forEach(item => {
+            if (category === 'all' || item.classList.contains('category-' + category)) {
+                item.style.display = 'block';
+                // Reset Animation
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 100);
+                hasVisible = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        const emptyMsg = document.getElementById('empty-message');
+        if (!hasVisible) emptyMsg.classList.remove('d-none');
+        else emptyMsg.classList.add('d-none');
+    }
+</script>
 {% endblock %}
