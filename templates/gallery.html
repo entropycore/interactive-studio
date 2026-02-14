@@ -2,16 +2,17 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/assets.css') }}">
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}"> <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
 <header class="gallery-header">
     <div class="header-overlay"></div>
     <div class="container h-100 d-flex flex-column justify-content-center position-relative">
+        
         <h1 class="display-1 fw-bold tracking-tight">The <span class="text-gradient">Collection</span></h1>
         <p class="lead text-white-50" style="max-width: 500px;">
-               A curated archive of degital landscapes and visual explorations </p>
+            A curated archive of degital landscapes and visual explorations.
+        </p>
     </div>
-    
     <div class="marquee-bg">
         <span>CREATIVITY • DATA • ART • DESIGN • FUTURE • </span>
         <span>CREATIVITY • DATA • ART • DESIGN • FUTURE • </span>
@@ -44,11 +45,21 @@
         {% for img in saved_assets %}
         <div class="gallery-item category-saved">
             <div class="image-wrapper">
-                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy" onclick="openLightbox(this.src)">
                 <div class="item-overlay">
+                    <div class="card-actions">
+                        <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="icon-btn" title="Download">
+                            <i class="ph ph-download-simple"></i>
+                        </a>
+                        <button class="icon-btn" onclick="openLightbox(this.closest('.image-wrapper').querySelector('img').src)" title="Zoom">
+                            <i class="ph ph-arrows-out-simple"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteImage('{{ img }}', this)" title="Delete">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
                     <div class="overlay-content">
                         <h5>Masterpiece</h5>
-                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">View</button>
                     </div>
                 </div>
             </div>
@@ -58,11 +69,21 @@
         {% for img in drawings %}
         <div class="gallery-item category-drawings">
             <div class="image-wrapper">
-                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy" onclick="openLightbox(this.src)">
                 <div class="item-overlay">
+                    <div class="card-actions">
+                        <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="icon-btn" title="Download">
+                            <i class="ph ph-download-simple"></i>
+                        </a>
+                        <button class="icon-btn" onclick="openLightbox(this.closest('.image-wrapper').querySelector('img').src)" title="Zoom">
+                            <i class="ph ph-arrows-out-simple"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteImage('{{ img }}', this)" title="Delete">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
                     <div class="overlay-content">
                         <h5>Sketch</h5>
-                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">View</button>
                     </div>
                 </div>
             </div>
@@ -71,12 +92,22 @@
 
         {% for img in data_art %}
         <div class="gallery-item category-data">
-            <div class="image-wrapper bg-white p-3">
-                <img src="{{ url_for('static', filename='outputs/' + img) }}" style="object-fit: contain;">
+            <div class="image-wrapper bg-white">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" style="object-fit: contain; padding: 10px;" onclick="openLightbox(this.src)">
                 <div class="item-overlay">
+                    <div class="card-actions">
+                        <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="icon-btn" title="Download">
+                            <i class="ph ph-download-simple"></i>
+                        </a>
+                        <button class="icon-btn" onclick="openLightbox(this.closest('.image-wrapper').querySelector('img').src)" title="Analyze">
+                            <i class="ph ph-arrows-out-simple"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteImage('{{ img }}', this)" title="Delete">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
                     <div class="overlay-content">
                         <h5>Data Viz</h5>
-                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">Analyze</button>
                     </div>
                 </div>
             </div>
@@ -86,11 +117,21 @@
         {% for img in edited %}
         <div class="gallery-item category-edited">
             <div class="image-wrapper">
-                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy">
+                <img src="{{ url_for('static', filename='outputs/' + img) }}" loading="lazy" onclick="openLightbox(this.src)">
                 <div class="item-overlay">
+                    <div class="card-actions">
+                        <a href="{{ url_for('static', filename='outputs/' + img) }}" download class="icon-btn" title="Download">
+                            <i class="ph ph-download-simple"></i>
+                        </a>
+                        <button class="icon-btn" onclick="openLightbox(this.closest('.image-wrapper').querySelector('img').src)" title="Zoom">
+                            <i class="ph ph-arrows-out-simple"></i>
+                        </button>
+                        <button class="icon-btn delete" onclick="deleteImage('{{ img }}', this)" title="Delete">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
                     <div class="overlay-content">
-                        <h5>Edited</h5>
-                        <button onclick="window.open(this.closest('.image-wrapper').querySelector('img').src)">Download</button>
+                        <h5>Edited Art</h5>
                     </div>
                 </div>
             </div>
@@ -104,209 +145,11 @@
     </div>
 </div>
 
-<style>
-    /* =========================================
-       1. HERO STYLES (كيف ما هما)
-       ========================================= */
-    .gallery-header {
-        height: 80vh;
-        width: 100%;
-        position: relative;
-        background: url('/static/assets/gallery_bg.jpg') no-repeat center center/cover;
-        background-attachment: fixed;
-        overflow: hidden;
-        color: white;
-        margin-bottom: -50px; 
-    }
-    .header-overlay {
-        position: absolute; inset: 0;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
-        z-index: 1;
-    }
-    .gallery-header .container { z-index: 2; }
-    
-    
-    .text-gradient {
-        background: linear-gradient(90deg, #fff, #a5b4fc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
+<div id="lightbox" class="lightbox">
+    <button class="close-lightbox" onclick="closeLightbox()"><i class="ph ph-x"></i></button>
+    <button class="nav-btn prev" onclick="changeImage(-1)"><i class="ph ph-caret-left"></i></button>
+    <img id="lightbox-img" src="" alt="Zoomed Image">
+    <button class="nav-btn next" onclick="changeImage(1)"><i class="ph ph-caret-right"></i></button>
+</div>
 
-    .marquee-bg {
-        position: absolute; bottom: 25px; width: 100%;
-        white-space: nowrap; opacity: 0.1;
-        font-size: 5rem; font-weight: 900;
-        animation: marquee 30s linear infinite;
-        z-index: 1; pointer-events: none;
-    }
-    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-
-/* =========================================
-       2. STICKY DOCK (THE MAGIC FIX 🎩)
-       ========================================= */
-    .sticky-filter-container {
-        position: sticky;
-        
-        top: 0; 
-        z-index: 100;
-        
-        display: flex;
-        justify-content: center;
-        
-        padding-top: 100px; 
-        padding-bottom: 20px;
-        margin-bottom: 20px;
-        width: 100%;
-
-        
-        background-color: var(--bg-base);
-        background-image: var(--bg-mesh);
-        background-attachment: fixed;      
-        background-size: cover;
-        background-repeat: no-repeat;
-        
-        
-        mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-        -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-    }
-
-    
-    body.dark-mode .sticky-filter-container {
-        background-color: var(--bg-base);
-        background-image: var(--bg-mesh);
-    }
-
-    .glass-dock {
-        pointer-events: auto;
-        display: flex;
-        gap: 10px;
-        
-        
-        background: rgba(255, 255, 255, 0.25); 
-        backdrop-filter: blur(15px) saturate(180%);
-        -webkit-backdrop-filter: blur(15px) saturate(180%);
-        
-        padding: 10px;
-        border-radius: 50px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        transition: 0.3s;
-    }
-    
-    .glass-dock:hover { transform: translateY(-3px); }
-
-    .dock-item {
-        background: transparent; border: none;
-        color: var(--text-main);
-        padding: 10px 20px;
-        border-radius: 50px;
-        font-weight: 600; font-size: 0.9rem;
-        transition: 0.3s;
-        display: flex; align-items: center; gap: 8px;
-        cursor: pointer;
-    }
-
-    .dock-item:hover { background: rgba(0,0,0,0.05); }
-    body.dark-mode .dock-item:hover { background: rgba(255,255,255,0.1); }
-    
-    .dock-item.active {
-        background: #000;
-        color: white;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    body.dark-mode .dock-item.active { background: #fff; color: #000; }
-    body.dark-mode .dock-item { color: #fff; }
-
-
-    /* =========================================
-       3. GALLERY GRID (NO MASKS NEEDED NOW)
-       ========================================= */
-    .gallery-grid {
-        column-count: 4;
-        column-gap: 20px;
-        
-        padding-top: 10px;
-    }
-
-    .gallery-item {
-        break-inside: avoid;
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
-    }
-
-    .image-wrapper {
-        position: relative;
-        border-radius: 20px;
-        overflow: hidden;
-        cursor: pointer;
-        background: var(--bg-card-glass);
-    }
-
-    .image-wrapper img {
-        width: 100%;
-        display: block;
-        transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-    }
-    .image-wrapper:hover img { transform: scale(1.05); }
-
-    .item-overlay {
-        position: absolute; inset: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-        opacity: 0;
-        transition: 0.3s;
-        display: flex; align-items: flex-end; justify-content: center;
-        padding-bottom: 20px;
-    }
-    .image-wrapper:hover .item-overlay { opacity: 1; }
-    
-    .overlay-content button {
-        background: white; color: black; border: none;
-        padding: 8px 20px; border-radius: 50px;
-        font-weight: 600; font-size: 0.9rem;
-        cursor: pointer;
-    }
-    .overlay-content button:hover { background: #f0f0f0; }
-
-    /* Responsive */
-    @media (max-width: 992px) { .gallery-grid { column-count: 3; } }
-    @media (max-width: 768px) { 
-        .gallery-grid { column-count: 2; } 
-        .gallery-header { height: 50vh; }
-        .dock-item span { display: none; }
-        .sticky-filter-container { padding-top: 80px; } 
-    }
-    @media (max-width: 576px) { .gallery-grid { column-count: 1; } }
-
-</style>
-
-<script>
-    function filterGallery(category, btn) {
-        document.querySelectorAll('.dock-item').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const items = document.querySelectorAll('.gallery-item');
-        let hasVisible = false;
-
-        items.forEach(item => {
-            if (category === 'all' || item.classList.contains('category-' + category)) {
-                item.style.display = 'block';
-                // Reset Animation
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, 100);
-                hasVisible = true;
-            } else {
-                item.style.display = 'none';
-            }
-        });
-
-        const emptyMsg = document.getElementById('empty-message');
-        if (!hasVisible) emptyMsg.classList.remove('d-none');
-        else emptyMsg.classList.add('d-none');
-    }
-</script>
-{% endblock %}
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script> {% endblock %}

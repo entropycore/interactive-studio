@@ -138,6 +138,21 @@ def gallery():
                            edited=edited)
 
 
+@app.route('/delete_image', methods=['POST'])
+def delete_image():
+    try:
+        data = request.json
+        filename = data.get('filename')
+        file_path = os.path.join(app.config['OUTPUT_FOLDER'], filename)
+        
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({"success": True})
+        else:
+            return jsonify({"success": False, "error": "File not found"}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route('/generative', methods=['GET', 'POST'])
 def generative():
