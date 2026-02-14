@@ -189,18 +189,45 @@ body.dark-mode .moon-icon { opacity: 1; transform: translate(-50%, -50%) rotate(
 }
 
 .luxury-btn {
-    padding: 0 25px; height: 56px; border-radius: 50px; background: #ffffff; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    border: 2px solid transparent;
-    background-image: linear-gradient(white, white), linear-gradient(135deg, #00C6FF, #0072FF, #F6D365);
-    background-origin: border-box; background-clip: padding-box, border-box;
-    box-shadow: 0 10px 30px rgba(0, 114, 255, 0.2); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding: 0 25px; 
+    height: 56px; 
+    border-radius: 50px; 
+    cursor: pointer;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 12px;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 2px solid transparent; 
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), 
+        linear-gradient(135deg, #00C6FF, #0072FF, #F6D365);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    
+    box-shadow: 0 10px 30px rgba(0, 114, 255, 0.25);
+    
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .luxury-btn .luxury-icon { width: 28px; height: auto; object-fit: contain; display: block; transform: translateY(-3px); transition: transform 0.3s ease; }
-.luxury-btn .btn-text { font-weight: 700; font-size: 1.05rem; line-height: 1; padding-top: 1px; margin: 0; background: linear-gradient(135deg, #333, #000); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.5px; }
+.luxury-btn .btn-text {
+    font-weight: 700; 
+    font-size: 1.05rem; 
+    margin: 0; 
+    background: linear-gradient(135deg, #333, #000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 
 .luxury-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(0, 114, 255, 0.3); }
-.luxury-btn:hover .luxury-icon { transform: translateY(-3px) rotate(-15deg) scale(1.1); }
+.luxury-btn:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 114, 255, 0.4); 
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), 
+        linear-gradient(135deg, #00C6FF, #0072FF, #F6D365);
+}
 
 .luxury-chat-box {
     width: 350px; height: 500px; background: #ffffff; border-radius: 20px;
@@ -267,8 +294,10 @@ body.dark-mode .search-results { background: rgba(30, 30, 30, 0.9); border-color
 body.dark-mode .search-results li a { color: #eee; }
 body.dark-mode .search-results li a:hover { background: rgba(255, 255, 255, 0.1); }
 body.dark-mode .site-footer { border-top: 1px solid #333; }
-body.dark-mode .luxury-btn { background-image: linear-gradient(#1e1e1e, #1e1e1e), linear-gradient(135deg, #00C6FF, #0072FF, #F6D365); }
-body.dark-mode .luxury-btn .btn-text { background: none; -webkit-text-fill-color: white; }
+body.dark-mode .luxury-btn { background-image: linear-gradient(rgba(20, 20, 20, 0.65), rgba(20, 20, 20, 0.65)), linear-gradient(135deg, #00C6FF, #0072FF, #F6D365);box-shadow: 0 10px 30px rgba(0, 114, 255, 0.15);}
+body.dark-mode .luxury-btn .btn-text {background: none; -webkit-text-fill-color: white; color: white;}
+
+body.dark-mode .luxury-btn:hover {background-image: linear-gradient(rgba(20, 20, 20, 0.85), rgba(20, 20, 20, 0.85)), linear-gradient(135deg, #00C6FF, #0072FF, #F6D365);box-shadow: 0 15px 40px rgba(0, 114, 255, 0.3);}
 body.dark-mode .luxury-btn .luxury-icon { filter: invert(1) brightness(2); }
 body.dark-mode .luxury-chat-box { background: #1e1e1e; border-color: #333; }
 body.dark-mode .chat-body { background: #121212; }
