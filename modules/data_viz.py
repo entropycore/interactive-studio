@@ -1,68 +1,114 @@
 import pandas as pd
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os
-import uuid
+import numpy as np
 
 class DataAnalyzer:
     def __init__(self, upload_folder):
         self.upload_folder = upload_folder
 
-    def get_csv_columns(self, filename):
-        """Kay7ll l'fichier w kayrje3 lina smiyat l'colonnes"""
+    def process_and_suggest(self, filename):
         filepath = os.path.join(self.upload_folder, filename)
+        
         try:
-            df = pd.read_csv(filepath)
-            # Kanferzo columns: Ar9am bohdhom, w Text bohdo
-            numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
-            all_cols = df.columns.tolist()
-            preview = df.head().to_html(classes='table table-sm', index=False) # Preview sghir
+            # --- 1. SMART READ (Encoding & Separator) ---
+            # Njerbou ne9raw b UTF-8 w auto-detection dyal separator
+            try:
+                df = pd.read_csv(filepath, sep=None, engine='python', encoding='utf-8')
+            except UnicodeDecodeError:
+                # Ila ma khdmch UTF-8, njerbou Latin-1 (common f Excel files)
+                df = pd.read_csv(filepath, sep=None, engine='python', encoding='latin-1')
+            
+            # --- 2. CLEANING (Nettoyage Intelligent) ---
+            # Mss7 les lignes li khawyin 100%
+            df = df.dropna(how='all')
+            
+            # BLOCK: Gestion dyal NaNs (Valeurs Manquantes)
+            # Bla ma ndiro fillna(0) 3la kolchi, nbdlou ghir NaNs b None bach JSON y9belhom
+            # JSON ma kayfhmch NaN (Not a Number), kayfhm null.
+            df = df.replace({np.nan: None}) 
+            
+            # --- 3. DETECT TYPES ---
+            num_cols = df.select_dtypes(include=['number']).columns.tolist()
+            cat_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+            
+            date_cols = []
+            for col in cat_cols:
+                # Nchoufo wach l-column katchbh l date (sample sghir bach ikon code khfif)
+                try:
+                    # check if > 80% of non-null values are dates
+                    sample = df[col].dropna().head(100)
+                    if len(sample) > 0:
+                        converted = pd.to_datetime(sample, errors='coerce')
+                        if converted.notna().sum() > (len(sample) * 0.8):
+                            date_cols.append(col)
+                            # Convertir column kamla l datetime bach nsta3mloha mn b3d
+                            df[col] = pd.to_datetime(df[col], errors='coerce')
+                except:
+                    pass
+            
+            # Update cat_cols (7iyed dates mn categorical)
+            cat_cols = [c for c in cat_cols if c not in date_cols]
+
+            # --- 4. GENERATE SUGGESTIONS ---
+            suggestions = []
+            
+            # Line / Area Chart (Time Series)
+            if len(date_cols) > 0 and len(num_cols) > 0:
+                suggestions.append({
+                    "type": "line",
+                    "x": date_cols[0],
+                    "y": num_cols[0],
+                    "title": f"Evolution of {num_cols[0]} over Time"
+                })
+
+            # Bar Chart (Comparison)
+            if len(cat_cols) > 0 and len(num_cols) > 0:
+                suggestions.append({
+                    "type": "bar",
+                    "x": cat_cols[0],
+                    "y": num_cols[0],
+                    "title": f"Comparison of {num_cols[0]} by {cat_cols[0]}"
+                })
+                
+                # Pie Chart (ila kanou categories 9lal)
+                unique_vals = df[cat_cols[0]].nunique()
+                if unique_vals <= 10:
+                    suggestions.append({
+                        "type": "pie",
+                        "labels": cat_cols[0],
+                        "values": num_cols[0],
+                        "title": f"Distribution of {num_cols[0]}"
+                    })
+
+            # Scatter (Correlation)
+            if len(num_cols) >= 2:
+                suggestions.append({
+                    "type": "scatter",
+                    "x": num_cols[0],
+                    "y": num_cols[1],
+                    "title": f"Correlation: {num_cols[0]} vs {num_cols[1]}"
+                })
+
+            # --- 5. PREPARE DATA FOR JSON ---
+            # Convert dates back to string for JSON serialization
+            for dc in date_cols:
+                df[dc] = df[dc].astype(str)
+            
+            # Limit rows to 500 for performance
+            chart_data = df.head(500).to_dict(orient='records')
+
             return {
-                "numeric": numeric_cols,
-                "all": all_cols,
-                "preview": preview,
-                "success": True
+                "success": True,
+                "data": chart_data,
+                "suggestions": suggestions,
+                "meta": {
+                    "rows": len(df),
+                    "numeric_cols": num_cols,
+                    "category_cols": cat_cols,
+                    "date_cols": date_cols
+                }
             }
+
         except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    def create_custom_chart(self, filename, chart_type, x_col, y_col, output_folder):
-        """Kayrasm graph 3la hsab khtiyar l'user"""
-        filepath = os.path.join(self.upload_folder, filename)
-        df = pd.read_csv(filepath)
-        
-        plt.figure(figsize=(10, 6))
-        sns.set_theme(style="whitegrid")
-
-        # Logic dyal Rasm
-        if chart_type == 'bar':
-            sns.barplot(data=df, x=x_col, y=y_col, palette="viridis")
-            plt.title(f"{y_col} by {x_col} (Bar Chart)")
-
-        elif chart_type == 'line':
-            sns.lineplot(data=df, x=x_col, y=y_col, marker='o', color='teal')
-            plt.title(f"Trend of {y_col} over {x_col}")
-
-        elif chart_type == 'scatter':
-            sns.scatterplot(data=df, x=x_col, y=y_col, hue=y_col, palette="cool", s=100)
-            plt.title(f"Correlation: {x_col} vs {y_col}")
-
-        elif chart_type == 'donut':
-            # Donut Chart khasso traitement special
-            data = df.groupby(x_col)[y_col].sum()
-            plt.pie(data, labels=data.index, autopct='%1.1f%%', startangle=90, colors=sns.color_palette("pastel"))
-            # Nzid دائرة (circle) f lwsst bach twli Donut
-            centre_circle = plt.Circle((0,0),0.70,fc='white')
-            fig = plt.gcf()
-            fig.gca().add_artist(centre_circle)
-            plt.title(f"Distribution of {y_col} by {x_col}")
-
-        # Sauvegarde
-        filename = f"chart_{uuid.uuid4().hex}.png"
-        filepath = os.path.join(output_folder, filename)
-        plt.savefig(filepath, bbox_inches='tight')
-        plt.close()
-        
-        return filename
+            # 3tina error detailé bach n3rfou mnin lmochkil
+            return {"success": False, "error": f"Error processing file: {str(e)}"}

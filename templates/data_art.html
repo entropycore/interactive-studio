@@ -1,110 +1,230 @@
-{% extends "base.html" %} {% block content %}
-<div class="row">
-  <div class="col-md-4">
-    <div class="card p-4 shadow-sm">
-      <h4 class="mb-3">📊 Data Analysis</h4>
+{% extends "base.html" %} 
 
-      <form method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label class="form-label">1. Upload your CSV File 📂</label>
-          <div class="input-group">
-            <input
-              type="file"
-              name="csv_file"
-              class="form-control"
-              accept=".csv"
-              required
-            />
-            <button class="btn btn-primary" type="submit">Analyze</button>
-          </div>
-          <small class="text-muted">Format: CSV with headers</small>
+{% block head %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+    /* 1. Glassmorphism & Art Style */
+    body {
+        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* Clean bg */
+    }
+    
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
+
+    /* 2. The Carousel (Scroll Horizontal) */
+    .chart-carousel {
+        display: flex;
+        overflow-x: auto;
+        gap: 20px;
+        padding: 20px 5px;
+        scroll-behavior: smooth;
+        scrollbar-width: none; /* Firefox */
+    }
+    .chart-carousel::-webkit-scrollbar { display: none; } /* Chrome */
+
+    /* 3. The Cards */
+    .chart-card {
+        min-width: 200px;
+        height: 140px;
+        background: white;
+        border-radius: 15px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border-color: #6c5ce7; /* Art Color */
+    }
+
+    .chart-card.active {
+        background: #6c5ce7;
+        color: white;
+    }
+
+    .chart-icon { font-size: 2rem; margin-bottom: 10px; }
+    
+    /* 4. Chart Container */
+    #chart-display {
+        min-height: 500px;
+        border-radius: 20px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h2 class="mb-4" style="font-family: 'Playfair Display', serif;">Upload Your Data Art Source</h2>
+            <div class="glass-panel p-5">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="input-group mb-3">
+                        <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+                        <button class="btn btn-dark" type="submit">Analyze DNA 🧬</button>
+                    </div>
+                </form>
+            </div>
         </div>
-      </form>
-
-      <hr />
-
-      {% if columns_info %}
-      <form method="POST">
-        <input
-          type="hidden"
-          name="uploaded_filename"
-          value="{{ uploaded_file }}"
-        />
-
-        <div class="alert alert-success py-2">
-          <small>✅ File Loaded: {{ uploaded_file }}</small>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label fw-bold">Select Chart Type</label>
-          <select name="chart_type" class="form-select">
-            <option value="bar">Bar Chart (Histogramme) 📊</option>
-            <option value="line">Line Chart (Courbe) 📈</option>
-            <option value="scatter">Scatter Plot (Nuage) 🌌</option>
-            <option value="donut">Donut Chart 🍩</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">X Axis (Categories/Time)</label>
-          <select name="x_axis" class="form-select">
-            {% for col in columns_info.all %}
-            <option value="{{ col }}">{{ col }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Y Axis (Values/Numbers)</label>
-          <select name="y_axis" class="form-select">
-            {% for col in columns_info.numeric %}
-            <option value="{{ col }}">{{ col }}</option>
-            {% endfor %}
-          </select>
-          <small class="text-muted">Only numeric columns shown here.</small>
-        </div>
-
-        <button type="submit" class="btn btn-success w-100 fw-bold">
-          Generate Visualization 🚀
-        </button>
-      </form>
-      {% endif %}
     </div>
-  </div>
 
-  <div class="col-md-8">
-    {% if chart_image %}
-    <div class="card shadow p-2">
-      <h5 class="card-header bg-white">Result Visualization</h5>
-      <img
-        src="{{ url_for('static', filename='outputs/' + chart_image) }}"
-        class="img-fluid w-100"
-      />
-      <div class="card-body text-center">
-        <a
-          href="{{ url_for('static', filename='outputs/' + chart_image) }}"
-          download
-          class="btn btn-outline-dark"
-          >Download Image 📥</a
-        >
-      </div>
+    <div id="analysis-section" style="display: none;" class="mt-5">
+        
+        <h4 class="text-center mb-3 text-muted">Recommended Visualizations</h4>
+        <div class="chart-carousel" id="options-container">
+            </div>
+
+        <div class="glass-panel p-3 mt-4">
+            <div id="chart-display"></div>
+        </div>
+
     </div>
-    {% elif columns_info %}
-    <div class="card shadow-sm">
-      <div class="card-header bg-light">Data Preview (First 5 rows)</div>
-      <div class="card-body overflow-auto">
-        {{ columns_info.preview | safe }}
-      </div>
-    </div>
-    {% else %}
-    <div
-      class="artwork-display border bg-light text-muted"
-      style="min-height: 400px"
-    >
-      <p class="mt-5 pt-5">Waiting for data...</p>
-      <p>Upload a CSV file to start analyzing.</p>
-    </div>
-    {% endif %}
-  </div>
+
 </div>
+
+<script>
+    let globalData = []; // Hna ankhbbiw data
+    let globalSuggestions = [];
+
+    // 1. Handle Upload
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        // Show loading...
+        document.querySelector('button[type="submit"]').innerHTML = "Analyzing...";
+
+        fetch('/api/analyze-csv', { // Badl had route b smia li 3ndk f python
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Save data globally
+                globalData = data.data;
+                globalSuggestions = data.suggestions;
+                
+                // Show the hidden section
+                document.getElementById('analysis-section').style.display = 'block';
+                
+                // Generate Cards
+                renderCards(data.suggestions);
+                
+                // Click awwel card automatic
+                if(data.suggestions.length > 0) {
+                    drawChart(0); 
+                }
+            } else {
+                alert("Error: " + data.error);
+            }
+            document.querySelector('button[type="submit"]').innerHTML = "Analyze DNA 🧬";
+        });
+    });
+
+    // 2. Render Cards Dynamic
+    function renderCards(suggestions) {
+        const container = document.getElementById('options-container');
+        container.innerHTML = ''; // Clear old
+
+        suggestions.forEach((item, index) => {
+            let icon = '📊';
+            if(item.type === 'line') icon = '📈';
+            if(item.type === 'pie' || item.type === 'donut') icon = '🍩';
+            if(item.type === 'scatter') icon = '🌌';
+            if(item.type === 'radar') icon = '🕸️';
+
+            const card = `
+                <div class="chart-card" onclick="drawChart(${index}, this)">
+                    <div class="chart-icon">${icon}</div>
+                    <div class="fw-bold">${item.type.toUpperCase()}</div>
+                    <small class="text-muted" style="font-size:0.7rem">${item.title}</small>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+    }
+
+    // 3. Draw Plotly Chart
+    function drawChart(index, cardElement = null) {
+        // Highlight active card
+        if(cardElement) {
+            document.querySelectorAll('.chart-card').forEach(c => c.classList.remove('active'));
+            cardElement.classList.add('active');
+        }
+
+        const config = globalSuggestions[index];
+        const layout = {
+            title: config.title,
+            paper_bgcolor: 'rgba(0,0,0,0)', // Transparent
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Poppins, sans-serif' }
+        };
+
+        let trace = {};
+
+        // Logic Rasm (Mapping Data)
+        if (config.type === 'bar') {
+            trace = {
+                x: globalData.map(d => d[config.x]),
+                y: globalData.map(d => d[config.y]),
+                type: 'bar',
+                marker: { color: '#6c5ce7' }
+            };
+        } 
+        else if (config.type === 'line' || config.type === 'area') {
+            trace = {
+                x: globalData.map(d => d[config.x]),
+                y: globalData.map(d => d[config.y]),
+                type: 'scatter',
+                mode: 'lines+markers',
+                fill: config.type === 'area' ? 'tozeroy' : 'none',
+                line: { shape: 'spline', color: '#00b894' } // Spline = Curved lines (Art style)
+            };
+        }
+        else if (config.type === 'pie' || config.type === 'donut') {
+            trace = {
+                labels: globalData.map(d => d[config.labels]),
+                values: globalData.map(d => d[config.values]),
+                type: 'pie',
+                hole: config.type === 'donut' ? 0.6 : 0, // Hole for donut
+                marker: { colors: ['#a29bfe', '#ffeaa7', '#fab1a0', '#81ecec'] }
+            };
+        }
+        else if (config.type === 'scatter') {
+             trace = {
+                x: globalData.map(d => d[config.x]),
+                y: globalData.map(d => d[config.y]),
+                mode: 'markers',
+                type: 'scatter',
+                marker: { size: 12, color: globalData.map(d => d[config.y]), colorscale: 'Viridis' }
+            };
+        }
+        else if (config.type === 'radar') {
+             // Radar specific logic (complex chwia)
+             trace = {
+                type: 'scatterpolar',
+                r: config.metrics.map(m => globalData[0][m]), // Example: take first row
+                theta: config.metrics,
+                fill: 'toself'
+             };
+        }
+
+        Plotly.newPlot('chart-display', [trace], layout);
+    }
+</script>
 {% endblock %}

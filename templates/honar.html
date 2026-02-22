@@ -1,137 +1,107 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid p-0" style="height: 85vh;">
-    <div class="row h-100 g-0">
-        
-        <div class="col-md-3 bg-dark text-white d-flex flex-column border-end border-secondary">
-            <div class="p-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
-                <span class="fw-bold">Honar History</span>
-                <button onclick="createNewChat()" class="btn btn-sm btn-primary">+ New Chat</button>
-            </div>
-            
-            <div class="flex-grow-1 overflow-auto p-2" id="chat-list">
-                {% for chat in chats %}
-                <div class="p-2 mb-1 rounded chat-item" role="button" onclick="loadChat('{{ chat.id }}')" id="chat-item-{{ chat.id }}">
-                    <small>💬 {{ chat.title }}</small>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/honar.css') }}">
+
+<div class="glass-layout">
+    
+    <aside class="sidebar-glass" id="sidebar">
+        <div class="sidebar-header-gemini">
+            <button class="icon-btn" onclick="toggleSidebar()" title="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="icon-btn" onclick="startNewChatUI()" title="New Chat">
+                <i class="far fa-edit"></i>
+            </button>
+        </div>
+
+        <div class="chat-list-glass custom-scroll">
+            {% for chat in chats %}
+            <div class="chat-item-glass" id="chat-item-{{ chat.id }}" onclick="loadChat('{{ chat.id }}')">
+                <i class="far fa-comment-alt chat-icon"></i>
+                <span class="chat-title-text" id="title-{{ chat.id }}">{{ chat.title }}</span>
+                
+                <div class="chat-options" onclick="toggleMenu(event, '{{ chat.id }}')">
+                    <i class="fas fa-ellipsis-v"></i> 
                 </div>
-                {% endfor %}
+
+                <div class="glass-dropdown" id="menu-{{ chat.id }}">
+                    <div class="action-rename" onclick="renameChat(event, '{{ chat.id }}')"><i class="fas fa-pen"></i> Rename</div>
+                    <div class="action-delete text-danger" onclick="deleteChat(event, '{{ chat.id }}')"><i class="fas fa-trash"></i> Delete</div>
+                </div>
             </div>
-            
-            <div class="p-3 border-top border-secondary text-center small text-white-50">
-                AI Assistant v1.0
+            {% endfor %}
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile-glass">
+                <div class="avatar-circle">U</div>
+                <div class="user-info">
+                    <span class="name">My Workspace</span>
+                    <span class="status">Pro Plan</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-glass">
+        
+        <header class="glass-header">
+            <button class="burger-btn" id="main-burger" onclick="toggleSidebar()" style="display: none;">
+                <i class="fas fa-bars"></i> 
+            </button>
+            <div class="model-badge">
+                Honar AI <span class="badge-v">2.0-robotic</span>
+            </div>
+        </header>
+
+        <div id="honar-display" class="messages-container custom-scroll">
+            <div id="welcome-state" class="empty-state">
+                <h2>How can I help you create today?</h2>
             </div>
         </div>
 
-        <div class="col-md-9 d-flex flex-column bg-light">
-            
-            <div id="honar-display" class="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3">
-                <div class="text-center text-muted mt-5">
-                    <h1>🤖 Honar AI</h1>
-                    <p>Select a conversation or start a new one.</p>
-                </div>
+        <div class="input-area-glass">
+            <div class="input-wrapper">
+                <input type="text" id="honar-input" placeholder="Message Honar..." autocomplete="off">
+                <button id="honar-send" onclick="handleSendClick()">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
             </div>
+            <div class="footer-text">Honar can make mistakes. Consider checking important information.</div>
+        </div>
 
-            <div class="p-3 bg-white border-top">
-                <div class="input-group">
-                    <input type="text" id="honar-input" class="form-control p-3" placeholder="Ask Honar anything..." disabled>
-                    <button class="btn btn-dark px-4" onclick="sendHonarMessage()" id="honar-send" disabled>➤</button>
-                </div>
-            </div>
+    </main>
+</div>
+
+<template id="chat-item-template">
+    <div class="chat-item-glass">
+        <i class="far fa-comment-alt chat-icon"></i>
+        <span class="chat-title-text"></span>
+        
+        <div class="chat-options">
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+
+        <div class="glass-dropdown">
+            <div class="action-rename"><i class="fas fa-pen"></i> Rename</div>
+            <div class="action-delete text-danger"><i class="fas fa-trash"></i> Delete</div>
+        </div>
+    </div>
+</template>
+
+<div id="honarModal" class="custom-modal-overlay">
+    <div class="custom-modal-box">
+        <h3 id="modal-title">Title</h3>
+        <p id="modal-text">Message</p>
+        <input type="text" id="modal-input" autocomplete="off" class="form-control">
+        <div class="modal-buttons">
+            <button id="modal-btn-cancel" class="btn-cancel">Cancel</button>
+            <button id="modal-btn-ok" class="btn-ok">OK</button>
         </div>
     </div>
 </div>
 
-<style>
-    .chat-item:hover { background-color: #343a40; cursor: pointer; }
-    .chat-item.active { background-color: #0d6efd; }
-    
-    .msg-bubble { max-width: 75%; padding: 12px 16px; border-radius: 15px; font-size: 1rem; line-height: 1.5; }
-    .msg-user { align-self: flex-end; background-color: #0d6efd; color: white; border-bottom-right-radius: 2px; }
-    .msg-bot { align-self: flex-start; background-color: #e9ecef; color: #333; border-bottom-left-radius: 2px; }
-</style>
-
-<script>
-    let currentChatId = null;
-
-    // 1. Créer un nouveau chat
-    function createNewChat() {
-        fetch('/api/chat/new', { method: 'POST' })
-        .then(res => res.json())
-        .then(chat => {
-            // Ajouter à la sidebar
-            location.reload(); // Refresh simple pour afficher le nouveau chat
-        });
-    }
-
-    // 2. Charger un chat existant
-    function loadChat(chatId) {
-        currentChatId = chatId;
-        
-        // Active Style
-        document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
-        const activeItem = document.getElementById(`chat-item-${chatId}`);
-        if(activeItem) activeItem.classList.add('active');
-
-        // Enable Inputs
-        document.getElementById('honar-input').disabled = false;
-        document.getElementById('honar-send').disabled = false;
-
-        // Fetch Messages
-        fetch(`/api/chat/get/${chatId}`)
-        .then(res => res.json())
-        .then(chat => {
-            const display = document.getElementById('honar-display');
-            display.innerHTML = ''; // Clear current view
-            
-            chat.messages.forEach(msg => {
-                appendMessage(msg.text, msg.sender);
-            });
-            display.scrollTop = display.scrollHeight;
-        });
-    }
-
-    // 3. Envoyer un message
-    function sendHonarMessage() {
-        const input = document.getElementById('honar-input');
-        const text = input.value.trim();
-        if (!text || !currentChatId) return;
-
-        // Afficher User Msg
-        appendMessage(text, 'user');
-        input.value = '';
-
-        // Envoyer au Backend
-        fetch('/api/chat/send', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ chat_id: currentChatId, message: text })
-        })
-        .then(res => res.json())
-        .then(data => {
-            appendMessage(data.response, 'bot');
-            const display = document.getElementById('honar-display');
-            display.scrollTop = display.scrollHeight;
-        });
-    }
-
-    // UI Helper
-    function appendMessage(text, sender) {
-        const display = document.getElementById('honar-display');
-        const div = document.createElement('div');
-        div.className = `msg-bubble ${sender === 'user' ? 'msg-user' : 'msg-bot'}`;
-        div.innerText = text;
-        display.appendChild(div);
-    }
-    
-    // Enter Key Support
-    document.getElementById('honar-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') sendHonarMessage();
-    });
-
-    // Auto-load le premier chat s'il existe
-    {% if chats %}
-        loadChat('{{ chats[0].id }}');
-    {% endif %}
-</script>
+<script src="{{ url_for('static', filename='js/honar.js') }}"></script>
 {% endblock %}

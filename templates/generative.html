@@ -1,195 +1,210 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="text-center mb-4">
-    <h2>🎨 Creative Studio (Mini-Paint)</h2>
-    <p>Select a tool and start creating. Shapes, colors, and freehand!</p>
-</div>
+<style>
+    .gen-workspace {
+        display: flex; height: calc(100vh - 90px); width: 100%;
+        background: var(--bg-input); font-family: 'Segoe UI', sans-serif;
+    }
+    
+    /* 🌟 SIDEBAR (Tools & Generators) 🌟 */
+    .controls-sidebar {
+        width: 350px; padding: 25px; overflow-y: auto;
+        background: var(--bg-glass-sidebar); backdrop-filter: blur(15px);
+        border-right: 1px solid var(--border-color);
+        display: flex; flex-direction: column; z-index: 10;
+    }
+    
+    .section-title {
+        font-size: 1.1rem; font-weight: 700; color: var(--text-main);
+        margin: 20px 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);
+        display: flex; align-items: center; gap: 10px;
+    }
 
-<div class="row justify-content-center">
-    <div class="col-md-3">
-        <div class="card p-3 shadow-sm sticky-top" style="top: 80px;">
-            <h5 class="mb-3">🛠️ Tools</h5>
-            
-            <div class="d-grid gap-2 mb-3">
-                <button class="btn btn-outline-dark active-tool" id="btnBrush" onclick="setTool('brush')">✏️ Brush</button>
-                <button class="btn btn-outline-dark" id="btnLine" onclick="setTool('line')">📏 Line</button>
-                <button class="btn btn-outline-dark" id="btnRect" onclick="setTool('rect')">⬜ Rectangle</button>
-                <button class="btn btn-outline-dark" id="btnCircle" onclick="setTool('circle')">🔴 Circle</button>
-                <button class="btn btn-outline-secondary" id="btnEraser" onclick="setTool('eraser')">🧼 Eraser</button>
-            </div>
+    /* Form UI */
+    .form-group { margin-bottom: 15px; }
+    .form-label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-muted); }
+    .custom-select, .color-picker, .range-slider {
+        width: 100%; padding: 10px; border-radius: 8px;
+        background: var(--bg-input); border: 1px solid var(--border-color);
+        color: var(--text-main); outline: none;
+    }
+    .color-picker { height: 45px; padding: 5px; cursor: pointer; }
 
-            <hr>
+    .btn-action {
+        width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600;
+        cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        margin-bottom: 10px;
+    }
+    .btn-python { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn-python:hover { box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4); transform: translateY(-2px); }
+    
+    .btn-save { background: #0d6efd; color: white; }
+    .btn-save:hover { background: #0b5ed7; transform: translateY(-2px); }
+    
+    .btn-clear { background: transparent; border: 1px solid #dc3545; color: #dc3545; }
+    .btn-clear:hover { background: #dc3545; color: white; }
 
-            <div class="mb-3">
-                <label class="form-label fw-bold">Color 🎨</label>
-                <input type="color" id="colorPicker" class="form-control form-control-color w-100" value="#000000">
-            </div>
+    /* 🌟 CANVAS AREA 🌟 */
+    .canvas-display {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        background: #0a0a0a; position: relative; overflow: hidden;
+    }
+    
+    .canvas-container {
+        position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;
+        background: #ffffff; /* Default background */
+    }
 
-            <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="fillShape">
-                <label class="form-check-label" for="fillShape">Fill Shapes (Tlawin)</label>
-            </div>
+    #drawing-canvas {
+        cursor: crosshair; display: block;
+    }
 
-            <div class="mb-3">
-                <label class="form-label fw-bold">Size 🖌️</label>
-                <input type="range" id="lineWidth" class="form-range" min="1" max="20" value="5">
-            </div>
+    
+    #hidden-form { display: none; }
+</style>
 
-            <hr>
-
-            <button onclick="clearCanvas()" class="btn btn-danger w-100 mb-2">Clear Canvas 🗑️</button>
-            
-            <form method="POST" id="drawingForm">
-                <input type="hidden" name="image_data" id="imageData">
-                <button type="button" onclick="saveDrawing()" class="btn btn-success w-100 py-2 fw-bold">
-                    Save Artwork 💾
-                </button>
-            </form>
+<div class="gen-workspace">
+    <aside class="controls-sidebar custom-scroll">
+        
+        <div class="section-title">
+            <i class="fas fa-robot text-info"></i> Auto-Generate (Python OOP)
         </div>
-    </div>
+        <form method="POST" action="{{ url_for('generative') }}">
+            <div class="form-group">
+                <label class="form-label">Algorithm Style</label>
+                <select name="style" class="custom-select">
+                    <option value="chaos">Geometric Chaos</option>
+                    <option value="grid">Mondrian Grid</option>
+                    <option value="network">Fractal Network</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Color Palette</label>
+                <select name="theme" class="custom-select">
+                    <option value="cyberpunk">Cyberpunk</option>
+                    <option value="vintage">Vintage</option>
+                    <option value="nature">Nature</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-action btn-python">
+                <i class="fas fa-magic"></i> Generate Art
+            </button>
+        </form>
 
-    <div class="col-md-9">
-        <div class="canvas-container shadow bg-white rounded">
-            <canvas id="drawCanvas" width="800" height="600"></canvas>
+        <div class="section-title mt-4">
+            <i class="fas fa-paint-brush text-warning"></i> Manual Sketch Pad
         </div>
-    </div>
+        <div class="form-group">
+            <label class="form-label">Brush Color</label>
+            <input type="color" id="brush-color" class="color-picker" value="#000000">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Brush Size</label>
+            <input type="range" id="brush-size" class="range-slider" min="1" max="20" value="3">
+        </div>
+        
+        <button class="btn-action btn-save" onclick="saveManualSketch()">
+            <i class="fas fa-save"></i> Save Sketch
+        </button>
+        <button class="btn-action btn-clear" onclick="clearCanvas()">
+            <i class="fas fa-eraser"></i> Clear Canvas
+        </button>
+
+        {% if saved_image %}
+        <div class="mt-4 text-center">
+            <span class="badge bg-success"><i class="fas fa-check"></i> Image Saved to Gallery!</span>
+        </div>
+        {% endif %}
+
+    </aside>
+
+    <main class="canvas-display">
+        <div class="canvas-container">
+            <canvas id="drawing-canvas" width="800" height="600"></canvas>
+        </div>
+    </main>
 </div>
 
-{% if saved_image %}
-<div class="text-center mt-5 p-4 bg-light rounded border">
-    <h3>✅ Saved!</h3>
-    <img src="{{ url_for('static', filename='outputs/' + saved_image) }}" class="img-thumbnail mt-2" style="max-height: 300px;">
-    <br>
-    <a href="{{ url_for('static', filename='outputs/' + saved_image) }}" download class="btn btn-primary mt-3">Download PNG 📥</a>
-</div>
-{% endif %}
+<form id="hidden-form" method="POST" action="{{ url_for('generative') }}">
+    <input type="hidden" name="image_data" id="image_data_input">
+</form>
 
 <script>
-    const canvas = document.getElementById('drawCanvas');
+    // --- 1. Canvas Setup ---
+    const canvas = document.getElementById('drawing-canvas');
     const ctx = canvas.getContext('2d');
-    const colorPicker = document.getElementById('colorPicker');
-    const lineWidth = document.getElementById('lineWidth');
-    const fillCheckbox = document.getElementById('fillShape');
+    
+    
+    {% if saved_image %}
+        const img = new Image();
+        img.src = "{{ url_for('static', filename='outputs/' + saved_image) }}";
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+    {% else %}
+       
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    {% endif %}
 
-    // Variables d'état
-    let isDrawing = false;
-    let currentTool = 'brush';
-    let startX, startY;
-    let snapshot; // Bach nkhbiw l'etat d canvas mli nkon kanjrro l'souris
+    // --- 2. Manual Drawing Logic (Sketch Pad) ---
+    let painting = false;
 
-    // Default Canvas Setup
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.lineCap = 'round';
-
-    // Tool Selection Logic
-    function setTool(tool) {
-        currentTool = tool;
-        // Reset buttons style
-        document.querySelectorAll('.btn-outline-dark, .btn-outline-secondary').forEach(btn => btn.classList.remove('active', 'bg-dark', 'text-white'));
-        
-        // Highlight active button
-        const btnId = 'btn' + tool.charAt(0).toUpperCase() + tool.slice(1);
-        const activeBtn = document.getElementById(btnId);
-        if(activeBtn) activeBtn.classList.add('active', 'bg-dark', 'text-white');
+    function startPosition(e) {
+        painting = true;
+        draw(e);
     }
 
-    // Mouse Events
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', drawing);
-    canvas.addEventListener('mouseup', stopDraw);
-
-    function startDraw(e) {
-        isDrawing = true;
+    function endPosition() {
+        painting = false;
         ctx.beginPath();
+    }
+
+    function draw(e) {
+        if (!painting) return;
         
-        // Calculer position exacte
         const rect = canvas.getBoundingClientRect();
-        startX = e.clientX - rect.left;
-        startY = e.clientY - rect.top;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
 
-        // Save snapshot pour les formes (Rect, Circle, Line)
-        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = document.getElementById('brush-size').value;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = document.getElementById('brush-color').value;
 
-        // Config Styles
-        ctx.lineWidth = lineWidth.value;
-        if (currentTool === 'eraser') {
-            ctx.strokeStyle = '#FFFFFF';
-        } else {
-            ctx.strokeStyle = colorPicker.value;
-            ctx.fillStyle = colorPicker.value;
-        }
-    }
-
-    function drawing(e) {
-        if (!isDrawing) return;
-
-        const rect = canvas.getBoundingClientRect();
-        const currentX = e.clientX - rect.left;
-        const currentY = e.clientY - rect.top;
-
-        if (currentTool === 'brush' || currentTool === 'eraser') {
-            ctx.lineTo(currentX, currentY);
-            ctx.stroke();
-        } else {
-            // Pour les formes, on restore l'image d'avant (snapshot) pour éviter de laisser une trace (trail)
-            ctx.putImageData(snapshot, 0, 0);
-            
-            if (currentTool === 'rect') {
-                drawRect(currentX, currentY);
-            } else if (currentTool === 'circle') {
-                drawCircle(currentX, currentY);
-            } else if (currentTool === 'line') {
-                drawLine(currentX, currentY);
-            }
-        }
-    }
-
-    function stopDraw() {
-        isDrawing = false;
-    }
-
-    // --- Fonctions de Formes ---
-
-    function drawLine(x, y) {
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
         ctx.lineTo(x, y);
         ctx.stroke();
-    }
-
-    function drawRect(x, y) {
-        const w = x - startX;
-        const h = y - startY;
-        if (!fillCheckbox.checked) {
-            ctx.strokeRect(startX, startY, w, h);
-        } else {
-            ctx.fillRect(startX, startY, w, h);
-        }
-    }
-
-    function drawCircle(x, y) {
         ctx.beginPath();
-        let radius = Math.sqrt(Math.pow((startX - x), 2) + Math.pow((startY - y), 2));
-        ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-        if (fillCheckbox.checked) {
-            ctx.fill();
-        } else {
-            ctx.stroke();
-        }
+        ctx.moveTo(x, y);
     }
 
-    // --- Helpers ---
+    canvas.addEventListener('mousedown', startPosition);
+    canvas.addEventListener('mouseup', endPosition);
+    canvas.addEventListener('mousemove', draw);
+    // Support for tablets/phones
+    canvas.addEventListener('touchstart', (e) => startPosition(e.touches[0]));
+    canvas.addEventListener('touchend', endPosition);
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // prevent scrolling
+        draw(e.touches[0]);
+    });
+
+    // --- 3. Tools Actions ---
     function clearCanvas() {
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    function saveDrawing() {
+    function saveManualSketch() {
+        
         const dataURL = canvas.toDataURL('image/png');
-        document.getElementById('imageData').value = dataURL;
-        document.getElementById('drawingForm').submit();
+       
+        document.getElementById('image_data_input').value = dataURL;
+        document.getElementById('hidden-form').submit();
     }
 </script>
 {% endblock %}

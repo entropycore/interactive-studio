@@ -19,3 +19,8 @@ Thumbs.db
 
 # --- Editors (VS Code settings) ---
 .vscode/
+
+
+static/outputs/*.png
+
+data/*.json

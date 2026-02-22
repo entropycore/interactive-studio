@@ -1,0 +1,11 @@
+Date;Product;Category;Sales;Profit;Region
+2023-01-01;Laptop;Electronics;1200;300;North
+2023-01-02;Mouse;Electronics;25;10;North
+2023-01-03;T-Shirt;Clothing;50;20;South
+2023-01-04;Headphones;Electronics;150;50;East
+2023-01-05;Jeans;Clothing;80;35;South
+2023-01-06;Monitor;Electronics;300;80;West
+2023-01-07;Sneakers;Clothing;120;60;East
+2023-01-08;Keyboard;Electronics;45;15;North
+2023-01-09;Jacket;Clothing;200;90;West
+2023-01-10;Tablet;Electronics;500;150;South

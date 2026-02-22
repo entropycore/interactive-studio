@@ -102,7 +102,7 @@ if (searchInput && resultsList) {
 }
 
 /* =========================================
-   4. AI ASSISTANT (HERMES) LOGIC
+   4. AI ASSISTANT (HERMES) LOGIC (With Typing Effect 🎨)
    ========================================= */
 function toggleAI() {
     const wrapper = document.querySelector('.luxury-ai-wrapper');
@@ -123,37 +123,80 @@ function sendAIMsg() {
     const input = document.getElementById("aiInput");
     const body = document.getElementById("aiMessagesBody");
     
-    if(!input) return;
+    if(!input || !body) return;
     
     const txt = input.value.trim();
     if(!txt) return;
     
-    // Add User Message
-    if(body) addMsg(txt, 'user');
+    // 1. Show User Message
+    addMsg(txt, 'user');
     input.value = "";
     
-    // Send to Server
+    // 2. Show Loading Indicator 
+    const loadingId = "ai-loading-indicator";
+    const loadingDiv = document.createElement("div");
+    loadingDiv.id = loadingId;
+    loadingDiv.className = "ai-msg bot";
+    loadingDiv.innerHTML = "<em>Honar is thinking... ✨</em>";
+    loadingDiv.style.opacity = "0.7";
+    body.appendChild(loadingDiv);
+    body.scrollTop = body.scrollHeight;
+    
+    // 3. Send to Server
     fetch("/chat", {
         method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ message: txt })
     })
     .then(res => res.json())
     .then(data => {
-        if(body) addMsg(data.response, 'bot');
+        // Remove Loading
+        const loader = document.getElementById(loadingId);
+        if(loader) loader.remove();
+
+        // 4. Show Bot Response with Animation (Typing Effect)
+        addMsg(data.response, 'bot', true); 
     })
     .catch(err => {
-        if(body) addMsg("Honar is sleeping... (Error)", 'bot');
+        const loader = document.getElementById(loadingId);
+        if(loader) loader.remove();
+        addMsg("Honar is sleeping... (Connection Error)", 'bot');
     });
 }
 
-function addMsg(text, type) {
+// wrting effect for bot messages
+function addMsg(text, type, animate = false) {
     const body = document.getElementById("aiMessagesBody");
     if(!body) return;
     
     const div = document.createElement("div");
     div.className = `ai-msg ${type}`;
-    div.innerText = text;
+    
     body.appendChild(div);
+
+    if (type === 'bot' && animate) {
+        // Typing Animation Logic
+        let i = 0;
+        const speed = 15; 
+        
+        function typeWriter() {
+            if (i < text.length) {
+                
+                if (text.charAt(i) === '\n') {
+                    div.innerHTML += '<br>';
+                } else {
+                    div.textContent += text.charAt(i);
+                }
+                i++;
+                body.scrollTop = body.scrollHeight; // Scroll automatic
+                setTimeout(typeWriter, speed);
+            }
+        }
+        typeWriter(); // Start Animation
+    } else {
+        // User message (Direct)
+        div.innerText = text;
+    }
+    
     body.scrollTop = body.scrollHeight;
 }
 
@@ -176,3 +219,13 @@ window.addEventListener('scroll', function() {
         btn.style.bottom = '30px';
     }
 });
+
+
+
+
+
+
+
+
+
+

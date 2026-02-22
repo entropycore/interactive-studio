@@ -1,46 +1,127 @@
 import random
 import os
 import uuid
+import math
 from PIL import Image, ImageDraw
 
-# Hada howa Class li mtlob f'page 1 dyal PDF (OOP)
+# ==========================================
+# 1. COLOR PALETTES (لألوان متناسقة واحترافية)
+# ==========================================
+PALETTES = {
+    "cyberpunk": [(255, 0, 60, 200), (0, 240, 255, 200), (250, 255, 0, 200), (18, 16, 31, 255)],
+    "vintage": [(239, 224, 185, 200), (181, 101, 118, 200), (109, 89, 122, 200), (53, 92, 125, 200)],
+    "nature": [(45, 106, 79, 200), (64, 145, 108, 200), (116, 198, 157, 200), (216, 243, 220, 200)]
+}
+
+# ==========================================
+# 2. OOP: BASE CLASS & SUBCLASSES (كيفما طالب الأستاذ)
+# ==========================================
+class Shape:
+    """Base class for all geometric shapes"""
+    def __init__(self, x, y, size, color):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.color = color
+
+    def draw(self, draw_obj):
+        pass # سيتم تحديدها في الـ Subclasses
+
+class Circle(Shape):
+    def draw(self, draw_obj):
+        bbox = [self.x, self.y, self.x + self.size, self.y + self.size]
+        draw_obj.ellipse(bbox, fill=self.color, outline=(255, 255, 255, 100), width=2)
+
+class Rectangle(Shape):
+    def draw(self, draw_obj):
+        bbox = [self.x, self.y, self.x + self.size, self.y + self.size]
+        draw_obj.rectangle(bbox, fill=self.color, outline=(0, 0, 0, 150), width=2)
+
+class Triangle(Shape):
+    def draw(self, draw_obj):
+        # حساب رؤوس المثلث
+        p1 = (self.x, self.y - self.size)
+        p2 = (self.x - self.size, self.y + self.size)
+        p3 = (self.x + self.size, self.y + self.size)
+        draw_obj.polygon([p1, p2, p3], fill=self.color, outline=(255, 255, 255, 150))
+
+# ==========================================
+# 3. GENERATIVE ART STUDIO (المدير الرئيسي)
+# ==========================================
 class GenerativeArt:
-    def __init__(self, width=800, height=600, background_color="white"):
+    def __init__(self, width=1000, height=1000, theme="cyberpunk"):
         self.width = width
         self.height = height
-        # Création d'une image vide
-        self.image = Image.new("RGB", (width, height), background_color)
+        self.theme = theme
+        self.palette = PALETTES.get(theme, PALETTES["cyberpunk"])
+        
+        # استعملنا RGBA باش نقدروا نخدمو بالشفافية (Transparency)
+        self.bg_color = (15, 15, 15, 255) if theme == "cyberpunk" else (245, 245, 245, 255)
+        self.image = Image.new("RGBA", (width, height), self.bg_color)
         self.draw = ImageDraw.Draw(self.image)
 
-    def generate_random_color(self):
-        """Génère une couleur aléatoire"""
-        return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+    def get_random_color(self):
+        """اختيار لون عشوائي من الباليط المحددة"""
+        return random.choice(self.palette)
 
-    def draw_shapes(self, shape_type, count):
-        """Dessine les formes (Cercles, Rectangles...)"""
+    # 🎨 STYLE 1: Geometric Chaos
+    def generate_geometric_chaos(self, count=100):
         for _ in range(count):
-            x = random.randint(0, self.width)
-            y = random.randint(0, self.height)
-            size = random.randint(20, 100)
-            color = self.generate_random_color()
+            x = random.randint(-50, self.width)
+            y = random.randint(-50, self.height)
+            size = random.randint(30, 150)
+            color = self.get_random_color()
+            
+            # اختيار شكل عشوائي (Polymorphism in action)
+            shape_type = random.choice([Circle, Rectangle, Triangle])
+            shape = shape_type(x, y, size, color)
+            shape.draw(self.draw)
 
-            if shape_type == "circles":
-                # Dessiner un cercle
-                self.draw.ellipse([x, y, x + size, y + size], outline=color, width=3)
-            
-            elif shape_type == "rectangles":
-                # Dessiner un rectangle
-                self.draw.rectangle([x, y, x + size, y + size], fill=color, outline="black")
-            
-            elif shape_type == "lines":
-                # Dessiner une ligne
-                x2 = random.randint(0, self.width)
-                y2 = random.randint(0, self.height)
-                self.draw.line([x, y, x2, y2], fill=color, width=3)
+    # 🎨 STYLE 2: Abstract Grid (Mondrian Style)
+    def generate_abstract_grid(self, grid_size=10):
+        step_x = self.width // grid_size
+        step_y = self.height // grid_size
+        
+        for i in range(grid_size):
+            for j in range(grid_size):
+                if random.random() > 0.3: # 70% chance to draw
+                    x = i * step_x
+                    y = j * step_y
+                    size = random.randint(step_x // 2, step_x)
+                    color = self.get_random_color()
+                    
+                    shape = Rectangle(x, y, size, color)
+                    shape.draw(self.draw)
+                else:
+                    # إضافة دوائر صغيرة في الفراغات
+                    cx = i * step_x + step_x // 2
+                    cy = j * step_y + step_y // 2
+                    self.draw.ellipse([cx-10, cy-10, cx+10, cy+10], fill=self.get_random_color())
+
+    # 🎨 STYLE 3: Fractal Lines / Network
+    def generate_network_nodes(self, node_count=50):
+        nodes = [(random.randint(50, self.width-50), random.randint(50, self.height-50)) for _ in range(node_count)]
+        
+        # رسم الخطوط بين العقد المتقاربة
+        for i in range(node_count):
+            for j in range(i + 1, node_count):
+                dist = math.hypot(nodes[i][0] - nodes[j][0], nodes[i][1] - nodes[j][1])
+                if dist < 150: # إذا كانت المسافة قريبة
+                    color = self.get_random_color()
+                    self.draw.line([nodes[i], nodes[j]], fill=color, width=random.randint(1, 4))
+        
+        # رسم العقد كدوائر
+        for nx, ny in nodes:
+            Circle(nx - 10, ny - 10, 20, self.get_random_color()).draw(self.draw)
 
     def save_image(self, output_folder):
-        """Sauvegarde l'image avec un nom unique et retourne le nom"""
-        filename = f"art_{uuid.uuid4().hex}.png"
+        """حفظ اللوحة مع دمج طبقات الشفافية"""
+        filename = f"art_{uuid.uuid4().hex[:8]}.png"
         filepath = os.path.join(output_folder, filename)
-        self.image.save(filepath)
+        
+        # دمج RGBA إلى RGB باش يتسجل مزيان
+        final_image = Image.new("RGB", self.image.size, (255, 255, 255))
+        final_image.paste(self.image, (0, 0), self.image)
+        
+        final_image.save(filepath, "PNG")
         return filename

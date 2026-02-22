@@ -1,35 +1,352 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container h-100">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>📝 Studio Notes</h3>
-                <span class="text-muted">Draft your ideas here.</span>
-            </div>
-            
-            <form method="POST" class="shadow-sm rounded overflow-hidden">
-                <div class="bg-light p-2 border-bottom d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-dark fw-bold">B</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark fst-italic">I</button>
-                    <button type="button" class="btn btn-sm btn-outline-dark text-decoration-underline">U</button>
-                    <div class="vr"></div>
-                    <span class="text-muted small align-self-center">Auto-saves to server</span>
-                </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-                <textarea name="content" class="form-control border-0 p-4" rows="15" 
-                          placeholder="Start writing your project report, ideas, or artistic concepts..." 
-                          style="resize: none; font-size: 1.1rem; line-height: 1.6;">{{ content }}</textarea>
-                
-                <div class="bg-white p-3 border-top text-end">
-                    {% if saved %}
-                        <span class="text-success me-3 fade-out">✅ Saved successfully!</span>
-                    {% endif %}
-                    <button type="submit" class="btn btn-dark px-4">Save Document 💾</button>
-                </div>
-            </form>
-        </div>
+<style>
+    /* =========================================
+       1. VARIABLES & THEME
+       ========================================= */
+    :root {
+        --canvas-bg: #f8f9fa;
+        --paper-bg: #ffffff;
+        --dot-color: #e5e7eb;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(0, 0, 0, 0.1);
+        --text-color: #1f2937;
+        --primary: #0d6efd;
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+
+    body.dark-mode {
+        --canvas-bg: #121212;
+        --paper-bg: #1e1e1e;
+        --dot-color: #333333;
+        --glass-bg: rgba(30, 30, 30, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-color: #f9fafb;
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    /* =========================================
+       2. WORKSPACE & PAPER
+       ========================================= */
+    .studio-workspace {
+        position: relative; 
+        width: 100%; 
+        height: calc(100vh - 80px); 
+        background: var(--canvas-bg); 
+        overflow: auto;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 80px 20px 100px 20px; 
+    }
+
+    .a4-paper {
+        width: 794px; min-height: 1123px;
+        background-color: var(--paper-bg);
+        background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+        background-size: 25px 25px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        border-radius: 4px; position: relative;
+        flex-shrink: 0; overflow: hidden; transition: background 0.3s;
+    }
+
+    #draw-layer { position: absolute; top: 0; left: 0; z-index: 1; cursor: crosshair; }
+    #dom-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+
+    /* =========================================
+       3. FLOATING GLASS PANELS (UI)
+       ========================================= */
+    .glass-pill {
+        background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border); box-shadow: var(--shadow);
+        border-radius: 50px; display: flex; align-items: center; gap: 8px; z-index: 100;
+    }
+
+
+    .top-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); padding: 8px 15px; }
+    .left-panel { position: absolute; top: 100px; left: 20px; flex-direction: column; padding: 15px 8px; }
+    .bottom-panel { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; }
+    
+    .ui-select, .ui-color {
+        background: transparent; border: 1px solid var(--dot-color); color: var(--text-color);
+        padding: 6px 12px; border-radius: 20px; outline: none; cursor: pointer; font-size: 0.85rem;
+    }
+    .ui-color { padding: 2px; width: 35px; height: 35px; border-radius: 50%; }
+    
+    .tool-btn {
+        background: transparent; border: none; color: var(--text-color); opacity: 0.6;
+        width: 45px; height: 45px; border-radius: 50%; cursor: pointer; transition: all 0.2s ease;
+        display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .tool-btn:hover, .tool-btn.active { opacity: 1; background: var(--primary); color: white; transform: scale(1.05); }
+
+    .action-btn {
+        background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 30px;
+        font-weight: 500; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+    }
+    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4); }
+    .action-btn.btn-save { background: #10b981; }
+    .action-btn.btn-save:hover { box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+
+    /* =========================================
+       4. CREATIVE ELEMENTS (Aesthetics)
+       ========================================= */
+    .element-node {
+        position: absolute; pointer-events: auto;
+        border: 1px solid transparent; transition: border 0.2s;
+        /* 👇 صلحنا مشكل خروج النص عن الإطار 👇 */
+        word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap;
+    }
+    .element-node:hover { border-color: rgba(13, 110, 253, 0.3); cursor: grab; }
+    .element-node.selected { border-color: var(--primary); }
+
+    .node-text {
+        min-width: 50px; min-height: 20px; padding: 5px 10px;
+        color: var(--text-color); font-size: 18px; outline: none;
+    }
+
+    .node-sticky {
+        width: 200px; min-height: 200px; padding: 20px; border-radius: 2px 20px 2px 2px;
+        box-shadow: 2px 8px 20px rgba(0,0,0,0.1); color: #1f2937; outline: none; font-family: 'Comic Sans MS', cursive;
+        background: linear-gradient(135deg, #fef08a 0%, #fde047 100%); 
+    }
+    .node-sticky.blue { background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%); }
+    .node-sticky.pink { background: linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%); }
+
+</style>
+
+<div class="studio-workspace custom-scroll">
+    
+    <div class="glass-pill top-panel">
+        <select id="prop-font" class="ui-select" onchange="updateSelection()">
+            <option value="'Segoe UI', sans-serif">Modern Sans</option>
+            <option value="'Georgia', serif">Elegant Serif</option>
+            <option value="'Comic Sans MS', cursive">Handwritten</option>
+        </select>
+        <select id="prop-size" class="ui-select" onchange="updateSelection()">
+            <option value="16px">Small</option>
+            <option value="20px" selected>Medium</option>
+            <option value="28px">Large</option>
+            <option value="40px">Title</option>
+        </select>
+        <input type="color" id="prop-color" class="ui-color" value="#1f2937" onchange="updateSelection()" title="Color">
+        <div class="vr mx-2" style="background: var(--glass-border); width: 1px; height: 25px;"></div>
+        <button class="tool-btn" style="width:35px; height:35px;" onclick="deleteSelected()" title="Delete (Del)"><i class="fas fa-trash-alt" style="font-size: 1rem; color: #ef4444;"></i></button>
     </div>
+
+    <div class="glass-pill left-panel">
+        <button class="tool-btn active" onclick="setTool('cursor', this)" title="Select & Move"><i class="fas fa-mouse-pointer"></i></button>
+        <button class="tool-btn" onclick="setTool('pen', this)" title="Draw"><i class="fas fa-pen-nib"></i></button>
+        <div class="my-2" style="width: 100%; height: 1px; background: var(--glass-border);"></div>
+        <button class="tool-btn" onclick="addText()" title="Add Text"><i class="fas fa-font"></i></button>
+        <button class="tool-btn" onclick="addSticky()" title="Add Sticky Note"><i class="fas fa-sticky-note" style="color: #eab308;"></i></button>
+    </div>
+
+    <div class="a4-paper" id="export-area">
+        <canvas id="draw-layer"></canvas>
+        <div id="dom-layer"></div>
+    </div>
+
+    <div class="glass-pill bottom-panel">
+        <button class="action-btn btn-save" onclick="saveToPython()"><i class="fas fa-cloud-upload-alt"></i> Save to Gallery</button>
+        <button class="action-btn" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+        <button class="tool-btn ml-3" style="width:40px; height:40px;" onclick="clearBoard()" title="Clear All"><i class="fas fa-eraser"></i></button>
+    </div>
+
 </div>
+
+<script>
+    const State = { tool: 'cursor', selectedNode: null };
+    const UI = {
+        paper: document.getElementById('export-area'),
+        canvas: document.getElementById('draw-layer'),
+        domLayer: document.getElementById('dom-layer'),
+        ctx: document.getElementById('draw-layer').getContext('2d')
+    };
+
+    function initBoard() {
+        UI.canvas.width = 794; 
+        UI.canvas.height = 1123;
+    }
+    initBoard();
+
+    function setTool(toolName, btn) {
+        State.tool = toolName;
+        document.querySelectorAll('.left-panel .tool-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        UI.canvas.style.pointerEvents = (toolName === 'pen') ? 'auto' : 'none';
+        deselectAll();
+    }
+
+    function createNode(type) {
+        const node = document.createElement('div');
+        node.className = `element-node ${type}`;
+        node.contentEditable = true; 
+        node.style.left = '300px';
+        node.style.top = '200px';
+        
+        node.addEventListener('mousedown', (e) => handleNodeInteraction(e, node));
+        
+        UI.domLayer.appendChild(node);
+        return node;
+    }
+
+    function addText() {
+        const node = createNode('node-text');
+        node.innerText = "Type your brilliant idea...";
+        node.style.color = document.getElementById('prop-color').value;
+        node.style.fontFamily = document.getElementById('prop-font').value;
+        node.style.fontSize = document.getElementById('prop-size').value;
+        selectNode(node);
+        setTool('cursor', document.querySelector('.left-panel .tool-btn'));
+    }
+
+    function addSticky() {
+        const node = createNode('node-sticky');
+        const styles = ['', 'blue', 'pink'];
+        node.classList.add(styles[Math.floor(Math.random() * styles.length)]);
+        node.innerText = "New Note";
+        selectNode(node);
+        setTool('cursor', document.querySelector('.left-panel .tool-btn'));
+    }
+
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+
+    function handleNodeInteraction(e, node) {
+        if (State.tool !== 'cursor') return;
+        selectNode(node);
+        
+        isDragging = true;
+        dragOffset.x = e.clientX - node.offsetLeft;
+        dragOffset.y = e.clientY - node.offsetTop;
+        
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+    }
+
+    function onDrag(e) {
+        if (!isDragging || !State.selectedNode) return;
+        // Limit movement so it doesn't go off paper easily
+        let newX = e.clientX - dragOffset.x;
+        let newY = e.clientY - dragOffset.y;
+        State.selectedNode.style.left = newX + 'px';
+        State.selectedNode.style.top = newY + 'px';
+    }
+
+    function stopDrag() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', stopDrag);
+    }
+
+    function selectNode(node) {
+        deselectAll();
+        State.selectedNode = node;
+        node.classList.add('selected');
+        node.focus();
+    }
+
+    function deselectAll() {
+        document.querySelectorAll('.element-node').forEach(n => n.classList.remove('selected'));
+        State.selectedNode = null;
+    }
+
+    UI.paper.addEventListener('mousedown', (e) => {
+        if(e.target === UI.paper || e.target === UI.canvas || e.target === UI.domLayer) deselectAll();
+    });
+
+    function updateSelection() {
+        if (!State.selectedNode) return;
+        if(State.selectedNode.classList.contains('node-text')) {
+            State.selectedNode.style.color = document.getElementById('prop-color').value;
+        }
+        State.selectedNode.style.fontFamily = document.getElementById('prop-font').value;
+        State.selectedNode.style.fontSize = document.getElementById('prop-size').value;
+    }
+
+    function deleteSelected() {
+        if (State.selectedNode) { State.selectedNode.remove(); State.selectedNode = null; }
+    }
+
+    function clearBoard() {
+        if(!confirm("Clear the entire canvas?")) return;
+        UI.ctx.clearRect(0, 0, UI.canvas.width, UI.canvas.height);
+        UI.domLayer.innerHTML = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Delete' && State.selectedNode && document.activeElement !== State.selectedNode) {
+            deleteSelected();
+        }
+    });
+
+    let painting = false;
+    UI.canvas.addEventListener('mousedown', (e) => { painting = true; draw(e); });
+    UI.canvas.addEventListener('mouseup', () => { painting = false; UI.ctx.beginPath(); });
+    UI.canvas.addEventListener('mousemove', draw);
+
+    function draw(e) {
+        if (!painting || State.tool !== 'pen') return;
+        const rect = UI.canvas.getBoundingClientRect();
+        const scaleX = UI.canvas.width / rect.width;
+        const scaleY = UI.canvas.height / rect.height;
+        
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+
+        UI.ctx.lineWidth = 3;
+        UI.ctx.lineCap = 'round';
+        UI.ctx.strokeStyle = document.getElementById('prop-color').value;
+
+        UI.ctx.lineTo(x, y);
+        UI.ctx.stroke();
+        UI.ctx.beginPath();
+        UI.ctx.moveTo(x, y);
+    }
+
+    const pdfOpt = {
+        margin: 0, filename: 'GenStudio_Masterpiece.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' }
+    };
+
+    function downloadPDF() {
+        deselectAll(); 
+        html2pdf().set(pdfOpt).from(UI.paper).save();
+    }
+
+    function saveToPython() {
+        deselectAll();
+        const btn = document.querySelector('.btn-save');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+        html2pdf().set(pdfOpt).from(UI.paper).outputImg('datauristring').then(function (imgData) {
+            fetch('/api/save-planner', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ image: imgData })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.innerHTML = originalText;
+                if(data.success) {
+                    alert("Masterpiece safely stored in your Gallery! 🎨✨");
+                } else {
+                    alert("Error saving: " + data.error);
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = originalText;
+                console.error(err);
+                alert("Connection error.");
+            });
+        });
+    }
+
+</script>
 {% endblock %}
