@@ -11,8 +11,7 @@ if api_key:
 
 class ArtAssistant:
     def __init__(self):
-        # نحاول نخدمو بـ Robotics لي عجبك
-        # ولكن إيلا كان Error غانرجعو لـ Flash أو Pro
+      
         self.model_name = 'gemini-robotics-er-1.5-preview' 
         self.model = genai.GenerativeModel(self.model_name)
         
@@ -30,7 +29,7 @@ class ArtAssistant:
         # Stats Simples
         stats = self.analyze_user_activity()
         
-        # Prompt Optimization (قصيناها باش تسرع)
+        # Prompt Optimization 
         system_prompt = f"""
         ROLE: You are 'Honar', AI Curator of Gen Studio.
         DATA: {str(self.gallery_data)}
@@ -43,5 +42,5 @@ class ArtAssistant:
             response = self.model.generate_content(full_prompt)
             return response.text
         except Exception as e:
-            # Fallback Plan (باش ميبقاش ساكت)
+            
             return "Honar is recalibrating... (Use standard model for faster response)."

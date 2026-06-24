@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  gen-studio:
+    build: .
+    container_name: gen_studio_app
+    ports:
+      - "5000:5000"
+    environment:
+      # Hna t9der tzid ga3 les clés API awla variables li knti dayr f .env
+      - FLASK_ENV=development
+    volumes:
+      # Hada kikhlik tbedel l'code f pc dyalek w ytbdel f l'conteneur directement
+      - .:/app
+    restart: unless-stopped

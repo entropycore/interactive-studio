@@ -6,6 +6,7 @@ import json
 import shutil 
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from modules.generative_art import StudioArtGenerator
 
 # --- IMPORTS MODULES ---
 from modules.data_viz import DataAnalyzer 
@@ -19,7 +20,7 @@ from modules.ai_assistant import ArtAssistant
 from modules.assets_manager import get_art_wallpapers
 
 
-from modules.generative_art import GenerativeArt
+
 
 app = Flask(__name__)
 
@@ -34,10 +35,10 @@ os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 os.makedirs('data', exist_ok=True)
 
 # --- HONAR AI ENGINE START (Global for Speed) ---
-print("🚀 Starting Honar AI Engine...")
+print(" Starting Honar AI Engine...")
 try:
     bot_engine = ArtAssistant()
-    print("✅ Honar is Online and Ready!")
+    print(" Honar is Online and Ready!")
 except Exception as e:
     print(f"⚠️ Error starting Honar: {e}")
     bot_engine = None
@@ -107,7 +108,7 @@ def new_chat():
         "id": chat_id,
         "title": "New Conversation",
         "timestamp": datetime.now().isoformat(),
-        "messages": [{"sender": "bot", "text": "Hello! I am Honar. How can I help you create art today? 🎨"}]
+        "messages": [{"sender": "bot", "text": "Hello! I am Honar. How can I help you create art today? "}]
     }
     chats.append(new_session)
     save_chats(chats)
@@ -329,7 +330,7 @@ def contact():
         except Exception as e:
             print(f"Error saving message: {e}")
             
-        flash("Message sent successfully! 🚀", "success")
+        flash("Message sent successfully! ", "success")
         return redirect(url_for('contact'))
 
     return render_template('contact.html')
@@ -340,6 +341,39 @@ def tutorials(): return render_template('construction.html')
 @app.route('/about')
 def about(): return render_template('construction.html')
 
+@app.route('/api/generate-art', methods=['POST'])
+def api_generate_art():
+    try:
+        data = request.json
+        art_type = data.get('type')
+        num_shapes = data.get('num_shapes', 150)
+        bg_color = data.get('bg_color', '#1a1a1a')
+        
+        # Initialiser le générateur
+        generator = StudioArtGenerator(app.config['OUTPUT_FOLDER'])
+        filename = ""
+        
+        # Déterminer quel art générer
+        if art_type == 'oop':
+            filename = generator.generate_oop_chaos(num_shapes=num_shapes, bg_color=bg_color)
+        elif art_type == 'fractal':
+            filename = generator.generate_fractal_tree(bg_color=bg_color)
+        elif art_type == 'grid':
+            filename = generator.generate_dynamic_grid(bg_color=bg_color)
+        else:
+            return jsonify({"status": "error", "message": "Type d'art invalide"}), 400
+            
+        # Renvoyer l'URL exacte attendue par le JavaScript
+        image_url = f"/{app.config['OUTPUT_FOLDER']}/{filename}"
+        
+        return jsonify({
+            "status": "success",
+            "image_url": image_url
+        })
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == '__main__':
     csv_path = os.path.join(os.path.dirname(__file__), 'data', 'assets_metadata.csv')
-    app.run(debug=True, extra_files=[csv_path]) #app.run(host='0.0.0.0', port=5000, debug=True, extra_files=[csv_path])    
+    app.run(host='0.0.0.0', port=5000, debug=True, extra_files=[csv_path]) #app.run(host='0.0.0.0', port=5000, debug=True, extra_files=[csv_path])    

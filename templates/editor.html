@@ -9,66 +9,104 @@
        1. VARIABLES & THEME
        ========================================= */
     :root {
-        --canvas-bg: #f8f9fa;
         --paper-bg: #ffffff;
         --dot-color: #e5e7eb;
         --glass-bg: rgba(255, 255, 255, 0.85);
-        --glass-border: rgba(0, 0, 0, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.4);
         --text-color: #1f2937;
         --primary: #0d6efd;
         --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     }
 
     body.dark-mode {
-        --canvas-bg: #121212;
         --paper-bg: #1e1e1e;
         --dot-color: #333333;
         --glass-bg: rgba(30, 30, 30, 0.85);
         --glass-border: rgba(255, 255, 255, 0.1);
         --text-color: #f9fafb;
-        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
+    body { overflow: hidden; }
+    .site-footer { display: none !important; }
+
     /* =========================================
-       2. WORKSPACE & PAPER
+       2. WORKSPACE CONTAINER
        ========================================= */
     .studio-workspace {
         position: relative; 
         width: 100%; 
-        height: calc(100vh - 80px); 
-        background: var(--canvas-bg); 
-        overflow: auto;
-        display: flex; flex-direction: column; align-items: center;
-        padding: 80px 20px 100px 20px; 
+        height: calc(100vh - 110px); 
+        margin-top: 10px; 
+        background: transparent; 
+        overflow-y: auto; 
+        overflow-x: auto;
+        display: flex; 
+        flex-direction: column;
+        align-items: center; 
+        padding-top: 90px; 
+        padding-bottom: 150px;
+    }
+
+    #document-container {
+        display: flex;
+        flex-direction: column;
+        gap: 50px; 
+        transform-origin: top center; 
+        transition: transform 0.1s ease-out;
     }
 
     .a4-paper {
-        width: 794px; min-height: 1123px;
+        width: 794px; height: 1123px; 
         background-color: var(--paper-bg);
         background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
         background-size: 25px 25px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        border-radius: 4px; position: relative;
-        flex-shrink: 0; overflow: hidden; transition: background 0.3s;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        border-radius: 4px; 
+        position: relative;
+        flex-shrink: 0; 
+        overflow: hidden;
+        page-break-after: always;
     }
 
-    #draw-layer { position: absolute; top: 0; left: 0; z-index: 1; cursor: crosshair; }
-    #dom-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+    .delete-page-btn {
+        position: absolute; top: 15px; right: 15px;
+        background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none;
+        width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        z-index: 10; opacity: 0; transition: all 0.2s ease;
+    }
+    .a4-paper:hover .delete-page-btn { opacity: 1; }
+    .delete-page-btn:hover { background: #ef4444; color: white; transform: scale(1.1); }
+
+    .page-number {
+        position: absolute; bottom: 20px; right: 30px;
+        font-family: monospace; font-size: 14px; color: #9ca3af;
+        z-index: 0; pointer-events: none;
+    }
+
+    .draw-layer { position: absolute; top: 0; left: 0; z-index: 1; cursor: crosshair; }
+    .dom-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 
     /* =========================================
-       3. FLOATING GLASS PANELS (UI)
+       3. FLOATING PANELS 
        ========================================= */
     .glass-pill {
         background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--glass-border); box-shadow: var(--shadow);
-        border-radius: 50px; display: flex; align-items: center; gap: 8px; z-index: 100;
+        border-radius: 50px; display: flex; align-items: center; gap: 8px; z-index: 1000;
+        position: fixed; 
     }
 
-
-    .top-panel { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); padding: 8px 15px; }
-    .left-panel { position: absolute; top: 100px; left: 20px; flex-direction: column; padding: 15px 8px; }
-    .bottom-panel { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; }
+    .top-panel { top: 120px; left: 50%; transform: translateX(-50%); padding: 8px 15px; }
+    .left-panel { top: 50%; left: 20px; transform: translateY(-50%); flex-direction: column; padding: 15px 8px; }
     
+    .zoom-indicator {
+        position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+        background: var(--glass-bg); backdrop-filter: blur(16px);
+        padding: 5px 15px; border-radius: 20px; font-weight: 600; font-size: 0.9rem;
+        border: 1px solid var(--glass-border); box-shadow: var(--shadow);
+    }
+
     .ui-select, .ui-color {
         background: transparent; border: 1px solid var(--dot-color); color: var(--text-color);
         padding: 6px 12px; border-radius: 20px; outline: none; cursor: pointer; font-size: 0.85rem;
@@ -77,35 +115,24 @@
     
     .tool-btn {
         background: transparent; border: none; color: var(--text-color); opacity: 0.6;
-        width: 45px; height: 45px; border-radius: 50%; cursor: pointer; transition: all 0.2s ease;
+        width: 40px; height: 40px; border-radius: 50%; cursor: pointer; transition: all 0.2s ease;
         display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
     }
-    .tool-btn:hover, .tool-btn.active { opacity: 1; background: var(--primary); color: white; transform: scale(1.05); }
-
-    .action-btn {
-        background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 30px;
-        font-weight: 500; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
-    }
-    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4); }
-    .action-btn.btn-save { background: #10b981; }
-    .action-btn.btn-save:hover { box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+    .tool-btn:hover, .tool-btn.active { opacity: 1; background: var(--glass-border); transform: scale(1.1); }
+    .tool-btn.active { color: var(--primary); }
 
     /* =========================================
-       4. CREATIVE ELEMENTS (Aesthetics)
+       4. CREATIVE ELEMENTS (Text, Sticky, Stickers)
        ========================================= */
     .element-node {
         position: absolute; pointer-events: auto;
-        border: 1px solid transparent; transition: border 0.2s;
-        /* 👇 صلحنا مشكل خروج النص عن الإطار 👇 */
+        border: 1px dashed transparent; transition: border 0.2s;
         word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap;
     }
     .element-node:hover { border-color: rgba(13, 110, 253, 0.3); cursor: grab; }
-    .element-node.selected { border-color: var(--primary); }
+    .element-node.selected { border-color: var(--primary); z-index: 100; }
 
-    .node-text {
-        min-width: 50px; min-height: 20px; padding: 5px 10px;
-        color: var(--text-color); font-size: 18px; outline: none;
-    }
+    .node-text { min-width: 50px; min-height: 20px; padding: 5px 10px; color: var(--text-color); font-size: 18px; outline: none; }
 
     .node-sticky {
         width: 200px; min-height: 200px; padding: 20px; border-radius: 2px 20px 2px 2px;
@@ -115,92 +142,273 @@
     .node-sticky.blue { background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%); }
     .node-sticky.pink { background: linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%); }
 
+    
+    .node-sticker {
+        width: 150px; 
+        height: 150px;
+        padding: 5px;
+        resize: both;
+        overflow: hidden;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .node-sticker img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+        pointer-events: none; 
+    }
+    
+    .sticker-menu {
+        position: fixed;
+        top: 50%; left: 90px;
+        transform: translateY(-50%) scale(0.9);
+        width: 280px; max-height: 400px;
+        padding: 15px; gap: 10px;
+        flex-wrap: wrap; justify-content: center;
+        opacity: 0; pointer-events: none;
+        transition: all 0.2s ease;
+        overflow-y: auto;
+        border-radius: 20px;
+    }
+    .sticker-menu.active {
+        opacity: 1; pointer-events: auto;
+        transform: translateY(-50%) scale(1);
+    }
+    .sticker-item {
+        width: 65px; height: 65px;
+        cursor: pointer; object-fit: contain;
+        transition: transform 0.2s;
+        border-radius: 10px;
+    }
+    .sticker-item:hover { transform: scale(1.15); background: rgba(0,0,0,0.05); }
+
 </style>
 
-<div class="studio-workspace custom-scroll">
+<div class="glass-pill top-panel">
+    <button class="tool-btn" onclick="addNewPage()" title="Add New Page" style="color: #10b981; opacity: 1;"><i class="fas fa-file-medical"></i></button>
+    <div class="vr mx-2" style="background: var(--glass-border); width: 1px; height: 25px;"></div>
+
+    <select id="prop-font" class="ui-select" onchange="updateSelection()">
+        <option value="'Segoe UI', sans-serif">Modern Sans</option>
+        <option value="'Georgia', serif">Elegant Serif</option>
+        <option value="'Comic Sans MS', cursive">Handwritten</option>
+    </select>
+    <select id="prop-size" class="ui-select" onchange="updateSelection()">
+        <option value="16px">Small</option>
+        <option value="20px" selected>Medium</option>
+        <option value="28px">Large</option>
+        <option value="40px">Title</option>
+    </select>
+    <input type="color" id="prop-color" class="ui-color" value="#1f2937" onchange="updateSelection()" title="Color">
     
-    <div class="glass-pill top-panel">
-        <select id="prop-font" class="ui-select" onchange="updateSelection()">
-            <option value="'Segoe UI', sans-serif">Modern Sans</option>
-            <option value="'Georgia', serif">Elegant Serif</option>
-            <option value="'Comic Sans MS', cursive">Handwritten</option>
-        </select>
-        <select id="prop-size" class="ui-select" onchange="updateSelection()">
-            <option value="16px">Small</option>
-            <option value="20px" selected>Medium</option>
-            <option value="28px">Large</option>
-            <option value="40px">Title</option>
-        </select>
-        <input type="color" id="prop-color" class="ui-color" value="#1f2937" onchange="updateSelection()" title="Color">
-        <div class="vr mx-2" style="background: var(--glass-border); width: 1px; height: 25px;"></div>
-        <button class="tool-btn" style="width:35px; height:35px;" onclick="deleteSelected()" title="Delete (Del)"><i class="fas fa-trash-alt" style="font-size: 1rem; color: #ef4444;"></i></button>
+    <div class="vr mx-2" style="background: var(--glass-border); width: 1px; height: 25px;"></div>
+    
+    <button class="tool-btn" onclick="deleteSelected()" title="Delete Element (Del)"><i class="fas fa-trash-alt" style="color: #ef4444;"></i></button>
+    <button class="tool-btn" onclick="downloadPDF()" title="Export PDF"><i class="fas fa-file-pdf" style="color: #0d6efd;"></i></button>
+    <button class="tool-btn" onclick="clearAllPages()" title="Clear All Pages"><i class="fas fa-eraser" style="color: #f59e0b;"></i></button>
+</div>
+
+<div class="glass-pill left-panel">
+    <button class="tool-btn active" onclick="setTool('cursor', this)" title="Select & Move"><i class="fas fa-mouse-pointer"></i></button>
+    <button class="tool-btn" onclick="setTool('pen', this)" title="Draw"><i class="fas fa-pen-nib"></i></button>
+    <div class="my-2" style="width: 100%; height: 1px; background: var(--glass-border);"></div>
+    <button class="tool-btn" onclick="addText()" title="Add Text"><i class="fas fa-font"></i></button>
+    <button class="tool-btn" onclick="addSticky()" title="Add Sticky Note"><i class="fas fa-sticky-note" style="color: #eab308;"></i></button>
+    
+    <button class="tool-btn" onclick="toggleStickerMenu()" title="Add Sticker"><i class="fas fa-smile" style="color: #ec4899;"></i></button>
+</div>
+
+<div class="glass-pill sticker-menu" id="sticker-menu">
     </div>
 
-    <div class="glass-pill left-panel">
-        <button class="tool-btn active" onclick="setTool('cursor', this)" title="Select & Move"><i class="fas fa-mouse-pointer"></i></button>
-        <button class="tool-btn" onclick="setTool('pen', this)" title="Draw"><i class="fas fa-pen-nib"></i></button>
-        <div class="my-2" style="width: 100%; height: 1px; background: var(--glass-border);"></div>
-        <button class="tool-btn" onclick="addText()" title="Add Text"><i class="fas fa-font"></i></button>
-        <button class="tool-btn" onclick="addSticky()" title="Add Sticky Note"><i class="fas fa-sticky-note" style="color: #eab308;"></i></button>
-    </div>
+<div class="zoom-indicator" id="zoom-label">100%</div>
 
-    <div class="a4-paper" id="export-area">
-        <canvas id="draw-layer"></canvas>
-        <div id="dom-layer"></div>
-    </div>
-
-    <div class="glass-pill bottom-panel">
-        <button class="action-btn btn-save" onclick="saveToPython()"><i class="fas fa-cloud-upload-alt"></i> Save to Gallery</button>
-        <button class="action-btn" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
-        <button class="tool-btn ml-3" style="width:40px; height:40px;" onclick="clearBoard()" title="Clear All"><i class="fas fa-eraser"></i></button>
-    </div>
-
+<div class="studio-workspace custom-scroll" id="workspace-container">
+    <div id="document-container">
+        </div>
 </div>
 
 <script>
-    const State = { tool: 'cursor', selectedNode: null };
+    const State = { tool: 'cursor', selectedNode: null, zoom: 1, pageIdCounter: 0 };
     const UI = {
-        paper: document.getElementById('export-area'),
-        canvas: document.getElementById('draw-layer'),
-        domLayer: document.getElementById('dom-layer'),
-        ctx: document.getElementById('draw-layer').getContext('2d')
+        workspace: document.getElementById('workspace-container'),
+        docContainer: document.getElementById('document-container'),
+        zoomLabel: document.getElementById('zoom-label'),
+        stickerMenu: document.getElementById('sticker-menu')
     };
 
-    function initBoard() {
-        UI.canvas.width = 794; 
-        UI.canvas.height = 1123;
-    }
-    initBoard();
+    // ==========================================
+    // 🌟 STICKERS LOGIC 🌟
+    // ==========================================
+    const STICKER_ASSETS = [
+        "https://cdn-icons-png.flaticon.com/512/763/763789.png", 
+        "https://cdn-icons-png.flaticon.com/512/1828/1828884.png", 
+        "https://cdn-icons-png.flaticon.com/512/1187/1187525.png", 
+        "https://cdn-icons-png.flaticon.com/512/2913/2913008.png", 
+        "https://cdn-icons-png.flaticon.com/512/2585/2585035.png", 
+        "https://cdn-icons-png.flaticon.com/512/1384/1384060.png", 
+        "https://cdn-icons-png.flaticon.com/512/2111/2111463.png", 
+        "https://cdn-icons-png.flaticon.com/512/3579/3579040.png"  
+    ];
 
+    
+    function initStickers() {
+        STICKER_ASSETS.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'sticker-item';
+            img.onclick = () => addSticker(url);
+            UI.stickerMenu.appendChild(img);
+        });
+    }
+    initStickers();
+
+    function toggleStickerMenu() {
+        UI.stickerMenu.classList.toggle('active');
+    }
+
+    function addSticker(url) {
+        const node = createNode('node-sticker');
+        node.contentEditable = false; 
+        
+        const img = document.createElement('img');
+        img.src = url;
+        node.appendChild(img);
+        
+        selectNode(node);
+        setTool('cursor', document.querySelector('.left-panel .tool-btn[title="Select & Move"]'));
+        UI.stickerMenu.classList.remove('active'); 
+    }
+
+
+    // ==========================================
+    // 📄 PAGES MANAGEMENT 
+    // ==========================================
+    function addNewPage() {
+        State.pageIdCounter++;
+        const pageId = `page-${State.pageIdCounter}`;
+        
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'a4-paper';
+        pageDiv.id = pageId;
+        pageDiv.innerHTML = `
+            <button class="delete-page-btn" onclick="removePage('${pageId}')" title="Delete this page">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="page-number"></div>
+            <canvas class="draw-layer"></canvas>
+            <div class="dom-layer"></div>
+        `;
+        
+        UI.docContainer.appendChild(pageDiv);
+        
+        const canvas = pageDiv.querySelector('.draw-layer');
+        canvas.width = 794; 
+        canvas.height = 1123;
+        
+        updatePageNumbers();
+        
+        if(document.querySelectorAll('.a4-paper').length > 1) {
+            pageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function removePage(pageId) {
+        const pages = document.querySelectorAll('.a4-paper');
+        if (pages.length <= 1) {
+            alert("You can't delete the last page! Use the Eraser icon to clear it instead. 🧹");
+            return;
+        }
+        
+        if(confirm("Are you sure you want to delete this page and everything on it?")) {
+            const page = document.getElementById(pageId);
+            if (page) {
+                page.remove();
+                updatePageNumbers();
+            }
+        }
+    }
+
+    function updatePageNumbers() {
+        const pages = document.querySelectorAll('.a4-paper');
+        pages.forEach((page, index) => {
+            const numDiv = page.querySelector('.page-number');
+            if(numDiv) numDiv.innerText = `Page ${index + 1}`;
+        });
+    }
+
+    addNewPage();
+
+    // ==========================================
+    // 🔍 ZOOM (Ctrl + Scroll)
+    // ==========================================
+    UI.workspace.addEventListener('wheel', function(e) {
+        if (e.ctrlKey) {
+            e.preventDefault(); 
+            
+            const zoomAmount = e.deltaY < 0 ? 0.05 : -0.05;
+            let newZoom = State.zoom + zoomAmount;
+            
+            if (newZoom < 0.4) newZoom = 0.4;
+            if (newZoom > 2.0) newZoom = 2.0;
+
+            State.zoom = newZoom;
+            UI.docContainer.style.transform = `scale(${State.zoom})`;
+            UI.zoomLabel.innerText = Math.round(State.zoom * 100) + "%";
+        }
+    }, { passive: false });
+
+    // ==========================================
+    // 🛠️ TOOLS LOGIC
+    // ==========================================
     function setTool(toolName, btn) {
         State.tool = toolName;
-        document.querySelectorAll('.left-panel .tool-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        UI.canvas.style.pointerEvents = (toolName === 'pen') ? 'auto' : 'none';
+        document.querySelectorAll('.left-panel .tool-btn:not([title^="Delete"]):not([title^="Export"]):not([title^="Clear"]):not([title^="Add New"])').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        
+        document.querySelectorAll('.draw-layer').forEach(c => {
+            c.style.pointerEvents = (toolName === 'pen') ? 'auto' : 'none';
+        });
         deselectAll();
+    }
+
+    function getActivePage() {
+        const pages = document.querySelectorAll('.a4-paper');
+        let active = pages[0];
+        pages.forEach(p => {
+            const rect = p.getBoundingClientRect();
+            if(rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+                active = p;
+            }
+        });
+        return active;
     }
 
     function createNode(type) {
         const node = document.createElement('div');
         node.className = `element-node ${type}`;
         node.contentEditable = true; 
-        node.style.left = '300px';
-        node.style.top = '200px';
+        
+        // كنحطوها فالوسط باش تبان لليوزر مزيان
+        const centerX = UI.workspace.scrollLeft / State.zoom + 250;
+        const centerY = UI.workspace.scrollTop / State.zoom + 150;
+        node.style.left = centerX + 'px';
+        node.style.top = centerY + 'px';
         
         node.addEventListener('mousedown', (e) => handleNodeInteraction(e, node));
         
-        UI.domLayer.appendChild(node);
+        const activePage = getActivePage();
+        activePage.querySelector('.dom-layer').appendChild(node);
         return node;
     }
 
     function addText() {
         const node = createNode('node-text');
-        node.innerText = "Type your brilliant idea...";
+        node.innerText = "Type your text here...";
         node.style.color = document.getElementById('prop-color').value;
         node.style.fontFamily = document.getElementById('prop-font').value;
         node.style.fontSize = document.getElementById('prop-size').value;
         selectNode(node);
-        setTool('cursor', document.querySelector('.left-panel .tool-btn'));
+        setTool('cursor', document.querySelector('.left-panel .tool-btn[title="Select & Move"]'));
     }
 
     function addSticky() {
@@ -209,19 +417,27 @@
         node.classList.add(styles[Math.floor(Math.random() * styles.length)]);
         node.innerText = "New Note";
         selectNode(node);
-        setTool('cursor', document.querySelector('.left-panel .tool-btn'));
+        setTool('cursor', document.querySelector('.left-panel .tool-btn[title="Select & Move"]'));
     }
 
     let isDragging = false;
-    let dragOffset = { x: 0, y: 0 };
+    let startX, startY, initialLeft, initialTop;
 
     function handleNodeInteraction(e, node) {
         if (State.tool !== 'cursor') return;
-        selectNode(node);
         
+        
+        const rect = node.getBoundingClientRect();
+        if (e.clientX > rect.right - 20 && e.clientY > rect.bottom - 20 && node.classList.contains('node-sticker')) {
+            return; 
+        }
+
+        selectNode(node);
         isDragging = true;
-        dragOffset.x = e.clientX - node.offsetLeft;
-        dragOffset.y = e.clientY - node.offsetTop;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = node.offsetLeft;
+        initialTop = node.offsetTop;
         
         document.addEventListener('mousemove', onDrag);
         document.addEventListener('mouseup', stopDrag);
@@ -229,11 +445,10 @@
 
     function onDrag(e) {
         if (!isDragging || !State.selectedNode) return;
-        // Limit movement so it doesn't go off paper easily
-        let newX = e.clientX - dragOffset.x;
-        let newY = e.clientY - dragOffset.y;
-        State.selectedNode.style.left = newX + 'px';
-        State.selectedNode.style.top = newY + 'px';
+        let dx = (e.clientX - startX) / State.zoom;
+        let dy = (e.clientY - startY) / State.zoom;
+        State.selectedNode.style.left = (initialLeft + dx) + 'px';
+        State.selectedNode.style.top = (initialTop + dy) + 'px';
     }
 
     function stopDrag() {
@@ -246,16 +461,19 @@
         deselectAll();
         State.selectedNode = node;
         node.classList.add('selected');
-        node.focus();
+        if(node.contentEditable === "true") node.focus();
     }
 
     function deselectAll() {
         document.querySelectorAll('.element-node').forEach(n => n.classList.remove('selected'));
         State.selectedNode = null;
+        UI.stickerMenu.classList.remove('active'); 
     }
 
-    UI.paper.addEventListener('mousedown', (e) => {
-        if(e.target === UI.paper || e.target === UI.canvas || e.target === UI.domLayer) deselectAll();
+    UI.workspace.addEventListener('mousedown', (e) => {
+        if(e.target.closest('.a4-paper') && !e.target.closest('.delete-page-btn') && !e.target.closest('.element-node')) {
+            deselectAll();
+        }
     });
 
     function updateSelection() {
@@ -271,10 +489,14 @@
         if (State.selectedNode) { State.selectedNode.remove(); State.selectedNode = null; }
     }
 
-    function clearBoard() {
-        if(!confirm("Clear the entire canvas?")) return;
-        UI.ctx.clearRect(0, 0, UI.canvas.width, UI.canvas.height);
-        UI.domLayer.innerHTML = '';
+    function clearAllPages() {
+        if(!confirm("Are you sure you want to clear ALL pages?")) return;
+        document.querySelectorAll('.draw-layer').forEach(canvas => {
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        });
+        document.querySelectorAll('.dom-layer').forEach(layer => {
+            layer.innerHTML = '';
+        });
     }
 
     document.addEventListener('keydown', (e) => {
@@ -283,70 +505,71 @@
         }
     });
 
+    // ==========================================
+    // 🖌️ DRAWING ON MULTIPLE PAGES
+    // ==========================================
     let painting = false;
-    UI.canvas.addEventListener('mousedown', (e) => { painting = true; draw(e); });
-    UI.canvas.addEventListener('mouseup', () => { painting = false; UI.ctx.beginPath(); });
-    UI.canvas.addEventListener('mousemove', draw);
+    let currentCtx = null;
 
-    function draw(e) {
-        if (!painting || State.tool !== 'pen') return;
-        const rect = UI.canvas.getBoundingClientRect();
-        const scaleX = UI.canvas.width / rect.width;
-        const scaleY = UI.canvas.height / rect.height;
+    UI.docContainer.addEventListener('mousedown', (e) => {
+        if (State.tool !== 'pen') return;
+        if (e.target.classList.contains('draw-layer')) {
+            painting = true;
+            currentCtx = e.target.getContext('2d');
+            currentCtx.lineWidth = 3;
+            currentCtx.lineCap = 'round';
+            currentCtx.strokeStyle = document.getElementById('prop-color').value;
+            
+            const rect = e.target.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / State.zoom;
+            const y = (e.clientY - rect.top) / State.zoom;
+            
+            currentCtx.beginPath();
+            currentCtx.moveTo(x, y);
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!painting || !currentCtx) return;
         
-        const x = (e.clientX - rect.left) * scaleX;
-        const y = (e.clientY - rect.top) * scaleY;
+        const rect = currentCtx.canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / State.zoom;
+        const y = (e.clientY - rect.top) / State.zoom;
 
-        UI.ctx.lineWidth = 3;
-        UI.ctx.lineCap = 'round';
-        UI.ctx.strokeStyle = document.getElementById('prop-color').value;
+        currentCtx.lineTo(x, y);
+        currentCtx.stroke();
+    });
 
-        UI.ctx.lineTo(x, y);
-        UI.ctx.stroke();
-        UI.ctx.beginPath();
-        UI.ctx.moveTo(x, y);
-    }
+    document.addEventListener('mouseup', () => {
+        if(painting && currentCtx) {
+            currentCtx.beginPath();
+            painting = false;
+            currentCtx = null;
+        }
+    });
 
+    // ==========================================
+    // 📄 PDF EXPORT
+    // ==========================================
     const pdfOpt = {
-        margin: 0, filename: 'GenStudio_Masterpiece.pdf',
+        margin: [0, 0],
+        filename: 'GenStudio_Document.pdf',
         image: { type: 'jpeg', quality: 1 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-        jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' }
+        jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] } 
     };
 
     function downloadPDF() {
         deselectAll(); 
-        html2pdf().set(pdfOpt).from(UI.paper).save();
-    }
-
-    function saveToPython() {
-        deselectAll();
-        const btn = document.querySelector('.btn-save');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
-        html2pdf().set(pdfOpt).from(UI.paper).outputImg('datauristring').then(function (imgData) {
-            fetch('/api/save-planner', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ image: imgData })
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.innerHTML = originalText;
-                if(data.success) {
-                    alert("Masterpiece safely stored in your Gallery! 🎨✨");
-                } else {
-                    alert("Error saving: " + data.error);
-                }
-            })
-            .catch(err => {
-                btn.innerHTML = originalText;
-                console.error(err);
-                alert("Connection error.");
+        const currentZ = State.zoom;
+        UI.docContainer.style.transform = `scale(1)`; 
+        
+        setTimeout(() => {
+            html2pdf().set(pdfOpt).from(UI.docContainer).save().then(() => {
+                UI.docContainer.style.transform = `scale(${currentZ})`; 
             });
-        });
+        }, 200);
     }
-
 </script>
 {% endblock %}
