@@ -81,7 +81,7 @@ function openArtModal(card) {
     const museum = card.dataset.museum;
     const description = card.dataset.description; 
     
-    // Movement kaina f parent element
+    
     const movement = card.parentElement.dataset.movement || 'Art';
 
     // 2. Populate Modal Elements

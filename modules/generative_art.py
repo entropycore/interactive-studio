@@ -1,127 +1,113 @@
+import matplotlib
+matplotlib.use('Agg') # Muhim bzaf bach Flask may plantéch
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import random
 import os
 import uuid
 import math
-from PIL import Image, ImageDraw
 
-# ==========================================
-# 1. COLOR PALETTES (لألوان متناسقة واحترافية)
-# ==========================================
-PALETTES = {
-    "cyberpunk": [(255, 0, 60, 200), (0, 240, 255, 200), (250, 255, 0, 200), (18, 16, 31, 255)],
-    "vintage": [(239, 224, 185, 200), (181, 101, 118, 200), (109, 89, 122, 200), (53, 92, 125, 200)],
-    "nature": [(45, 106, 79, 200), (64, 145, 108, 200), (116, 198, 157, 200), (216, 243, 220, 200)]
-}
-
-# ==========================================
-# 2. OOP: BASE CLASS & SUBCLASSES (كيفما طالب الأستاذ)
-# ==========================================
+# --- OOP REQUIREMENTS ---
 class Shape:
-    """Base class for all geometric shapes"""
-    def __init__(self, x, y, size, color):
+    def __init__(self, x, y, color):
         self.x = x
         self.y = y
-        self.size = size
         self.color = color
 
-    def draw(self, draw_obj):
-        pass # سيتم تحديدها في الـ Subclasses
+    def draw(self, ax):
+        pass
 
 class Circle(Shape):
-    def draw(self, draw_obj):
-        bbox = [self.x, self.y, self.x + self.size, self.y + self.size]
-        draw_obj.ellipse(bbox, fill=self.color, outline=(255, 255, 255, 100), width=2)
+    def __init__(self, x, y, radius, color):
+        super().__init__(x, y, color)
+        self.radius = radius
 
-class Rectangle(Shape):
-    def draw(self, draw_obj):
-        bbox = [self.x, self.y, self.x + self.size, self.y + self.size]
-        draw_obj.rectangle(bbox, fill=self.color, outline=(0, 0, 0, 150), width=2)
+    def draw(self, ax):
+        circle = patches.Circle((self.x, self.y), self.radius, facecolor=self.color, alpha=0.6, edgecolor='white', linewidth=1)
+        ax.add_patch(circle)
 
-class Triangle(Shape):
-    def draw(self, draw_obj):
-        # حساب رؤوس المثلث
-        p1 = (self.x, self.y - self.size)
-        p2 = (self.x - self.size, self.y + self.size)
-        p3 = (self.x + self.size, self.y + self.size)
-        draw_obj.polygon([p1, p2, p3], fill=self.color, outline=(255, 255, 255, 150))
+class Square(Shape):
+    def __init__(self, x, y, size, color):
+        super().__init__(x, y, color)
+        self.size = size
 
-# ==========================================
-# 3. GENERATIVE ART STUDIO (المدير الرئيسي)
-# ==========================================
-class GenerativeArt:
-    def __init__(self, width=1000, height=1000, theme="cyberpunk"):
-        self.width = width
-        self.height = height
-        self.theme = theme
-        self.palette = PALETTES.get(theme, PALETTES["cyberpunk"])
-        
-        # استعملنا RGBA باش نقدروا نخدمو بالشفافية (Transparency)
-        self.bg_color = (15, 15, 15, 255) if theme == "cyberpunk" else (245, 245, 245, 255)
-        self.image = Image.new("RGBA", (width, height), self.bg_color)
-        self.draw = ImageDraw.Draw(self.image)
+    def draw(self, ax):
+        rect = patches.Rectangle((self.x, self.y), self.size, self.size, facecolor=self.color, alpha=0.6, edgecolor='white', linewidth=1)
+        ax.add_patch(rect)
 
-    def get_random_color(self):
-        """اختيار لون عشوائي من الباليط المحددة"""
-        return random.choice(self.palette)
+# --- GENERATOR CLASS ---
+class StudioArtGenerator:
+    def __init__(self, output_folder="static/outputs"):
+        self.output_folder = output_folder
+        if not os.path.exists(self.output_folder):
+            os.makedirs(self.output_folder)
 
-    # 🎨 STYLE 1: Geometric Chaos
-    def generate_geometric_chaos(self, count=100):
-        for _ in range(count):
-            x = random.randint(-50, self.width)
-            y = random.randint(-50, self.height)
-            size = random.randint(30, 150)
-            color = self.get_random_color()
-            
-            # اختيار شكل عشوائي (Polymorphism in action)
-            shape_type = random.choice([Circle, Rectangle, Triangle])
-            shape = shape_type(x, y, size, color)
-            shape.draw(self.draw)
+    def _get_random_hex_color(self):
+        return "#{:06x}".format(random.randint(0, 0xFFFFFF))
 
-    # 🎨 STYLE 2: Abstract Grid (Mondrian Style)
-    def generate_abstract_grid(self, grid_size=10):
-        step_x = self.width // grid_size
-        step_y = self.height // grid_size
-        
-        for i in range(grid_size):
-            for j in range(grid_size):
-                if random.random() > 0.3: # 70% chance to draw
-                    x = i * step_x
-                    y = j * step_y
-                    size = random.randint(step_x // 2, step_x)
-                    color = self.get_random_color()
-                    
-                    shape = Rectangle(x, y, size, color)
-                    shape.draw(self.draw)
-                else:
-                    # إضافة دوائر صغيرة في الفراغات
-                    cx = i * step_x + step_x // 2
-                    cy = j * step_y + step_y // 2
-                    self.draw.ellipse([cx-10, cy-10, cx+10, cy+10], fill=self.get_random_color())
+    def _setup_plot(self, bg_color):
+        fig, ax = plt.subplots(figsize=(8, 8), dpi=100)
+        ax.set_facecolor(bg_color)
+        ax.set_xlim(0, 100)
+        ax.set_ylim(0, 100)
+        ax.axis('off')
+        return fig, ax
 
-    # 🎨 STYLE 3: Fractal Lines / Network
-    def generate_network_nodes(self, node_count=50):
-        nodes = [(random.randint(50, self.width-50), random.randint(50, self.height-50)) for _ in range(node_count)]
-        
-        # رسم الخطوط بين العقد المتقاربة
-        for i in range(node_count):
-            for j in range(i + 1, node_count):
-                dist = math.hypot(nodes[i][0] - nodes[j][0], nodes[i][1] - nodes[j][1])
-                if dist < 150: # إذا كانت المسافة قريبة
-                    color = self.get_random_color()
-                    self.draw.line([nodes[i], nodes[j]], fill=color, width=random.randint(1, 4))
-        
-        # رسم العقد كدوائر
-        for nx, ny in nodes:
-            Circle(nx - 10, ny - 10, 20, self.get_random_color()).draw(self.draw)
-
-    def save_image(self, output_folder):
-        """حفظ اللوحة مع دمج طبقات الشفافية"""
-        filename = f"art_{uuid.uuid4().hex[:8]}.png"
-        filepath = os.path.join(output_folder, filename)
-        
-        # دمج RGBA إلى RGB باش يتسجل مزيان
-        final_image = Image.new("RGB", self.image.size, (255, 255, 255))
-        final_image.paste(self.image, (0, 0), self.image)
-        
-        final_image.save(filepath, "PNG")
+    def _save_and_close(self, fig, prefix):
+        filename = f"{prefix}_{uuid.uuid4().hex[:8]}.png"
+        filepath = os.path.join(self.output_folder, filename)
+        plt.savefig(filepath, format='png', bbox_inches='tight', pad_inches=0, facecolor=fig.get_facecolor())
+        plt.close(fig)
         return filename
+
+    # Artwork 1: OOP Geometric
+    def generate_oop_chaos(self, num_shapes=150, bg_color='#1a1a1a'):
+        fig, ax = self._setup_plot(bg_color) # On utilise la couleur dynamique
+        shapes = []
+        for _ in range(num_shapes): # On utilise le nombre dynamique
+            x, y = random.uniform(0, 100), random.uniform(0, 100)
+            color = self._get_random_hex_color()
+            if random.choice([True, False]):
+                shapes.append(Circle(x, y, random.uniform(2, 12), color))
+            else:
+                shapes.append(Square(x, y, random.uniform(4, 15), color))
+                
+        for shape in shapes:
+            shape.draw(ax)
+        return self._save_and_close(fig, "oop_art")
+
+    # Artwork 2: Fractal Tree
+    def generate_fractal_tree(self, bg_color='#2c3e50'):
+        fig, ax = self._setup_plot(bg_color) # On utilise la couleur dynamique
+        
+        def draw_branch(x, y, angle, length, depth):
+            if depth == 0:
+                return
+            x2 = x + math.cos(math.radians(angle)) * length
+            y2 = y + math.sin(math.radians(angle)) * length
+            
+            thickness = max(1, depth * 0.5)
+            ax.plot([x, x2], [y, y2], color='#e74c3c', linewidth=thickness, alpha=0.8)
+            
+            new_length = length * random.uniform(0.6, 0.8)
+            draw_branch(x2, y2, angle - random.randint(15, 30), new_length, depth - 1)
+            draw_branch(x2, y2, angle + random.randint(15, 30), new_length, depth - 1)
+
+        draw_branch(50, 0, 90, 25, 8)
+        return self._save_and_close(fig, "fractal_art")
+
+    # Artwork 3: Dynamic Grid
+    def generate_dynamic_grid(self, bg_color='#ecf0f1'):
+        fig, ax = self._setup_plot(bg_color) # On utilise la couleur dynamique
+        step = 10
+        for x in range(0, 100, step):
+            for y in range(0, 100, step):
+                if random.random() > 0.3:
+                    color = self._get_random_hex_color()
+                    if random.random() > 0.5:
+                        circle = patches.Circle((x+step/2, y+step/2), step/2.5, facecolor=color)
+                        ax.add_patch(circle)
+                    else:
+                        ax.plot([x, x+step], [y, y+step], color=color, linewidth=3)
+                        ax.plot([x+step, x], [y, y+step], color=color, linewidth=3)
+        return self._save_and_close(fig, "grid_art")

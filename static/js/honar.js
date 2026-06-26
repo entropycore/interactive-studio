@@ -125,7 +125,7 @@ document.addEventListener('click', () => {
     document.querySelectorAll('.glass-dropdown').forEach(el => el.classList.remove('show'));
 });
 
-// 👇 النافذة المخصصة اللي غتعوض Default Alert (Logic) 👇
+
 function openModal(title, text, type) {
     return new Promise((resolve) => {
         const modal = document.getElementById('honarModal');

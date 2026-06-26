@@ -102,7 +102,7 @@ if (searchInput && resultsList) {
 }
 
 /* =========================================
-   4. AI ASSISTANT (HERMES) LOGIC (With Typing Effect 🎨)
+   4. AI ASSISTANT (HERMES) LOGIC (With Typing Effect )
    ========================================= */
 function toggleAI() {
     const wrapper = document.querySelector('.luxury-ai-wrapper');
