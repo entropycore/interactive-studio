@@ -4,7 +4,7 @@
     --studio-glass: rgba(255, 255, 255, 0.52);
     --studio-border: rgba(255, 255, 255, 0.66);
     --studio-soft: rgba(15, 23, 42, 0.07);
-    --studio-accent: #00a7c7;
+    --studio-accent: #031518;
     --studio-accent-2: #d94671;
     --studio-ink: #10131a;
 }
@@ -15,7 +15,7 @@ body.dark-mode {
     --studio-glass: rgba(22, 18, 34, 0.58);
     --studio-border: rgba(255, 255, 255, 0.14);
     --studio-soft: rgba(255, 255, 255, 0.08);
-    --studio-accent: #66e6ff;
+    --studio-accent: #f3f6f7;
     --studio-accent-2: #ff7aa2;
     --studio-ink: #ffffff;
 }

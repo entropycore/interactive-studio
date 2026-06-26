@@ -97,11 +97,12 @@ function appendMessage(text, sender, animate = false) {
     display.appendChild(row);
 
     if (sender === 'bot' && animate) {
-        let i = 0; const speed = 10;
+        let i = 0; 
+        const speed = 10;
         function typeWriter() {
-            if (i < text.length) {
-                if (text.charAt(i) === '\n') bubble.innerHTML += '<br>';
-                else bubble.textContent += text.charAt(i);
+            if (i <= text.length) {
+                
+                bubble.innerHTML = text.substring(0, i);
                 i++;
                 display.scrollTop = display.scrollHeight;
                 setTimeout(typeWriter, speed);
@@ -109,7 +110,7 @@ function appendMessage(text, sender, animate = false) {
         }
         typeWriter();
     } else {
-        bubble.innerText = text;
+        bubble.innerHTML = text;
     }
     display.scrollTop = display.scrollHeight;
 }
