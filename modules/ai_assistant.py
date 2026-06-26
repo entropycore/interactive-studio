@@ -12,7 +12,7 @@ if api_key:
 class ArtAssistant:
     def __init__(self):
       
-        self.model_name = 'gemini-robotics-er-1.5-preview' 
+        self.model_name = 'gemini-2.5-flash' 
         self.model = genai.GenerativeModel(self.model_name)
         
         self.gallery_data = get_art_wallpapers()
@@ -31,10 +31,16 @@ class ArtAssistant:
         
         # Prompt Optimization 
         system_prompt = f"""
-        ROLE: You are 'Honar', AI Curator of Gen Studio.
+        ROLE: You are 'Honar', AI Curator of Gen Studio, and a highly capable, general AI assistant.
         DATA: {str(self.gallery_data)}
         USER STATS: {stats}
-        STYLE: Artistic, helpful, concise.
+        STYLE: Professional, direct, helpful, and concise. 
+        FORMATTING RULES: 
+        1. Use HTML tags for formatting. 
+        2. Use <b> for titles or emphasis. 
+        3. Use <br> for line breaks and paragraphs. 
+        4. NEVER use markdown symbols like ** or *.
+        You MUST answer all user questions clearly and accurately, including general knowledge, history, math, and facts.
         """
         
         try:
