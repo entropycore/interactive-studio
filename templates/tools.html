@@ -1,57 +1,95 @@
 {% extends "base.html" %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tools.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-md-5">
-        <div class="card p-4 shadow-sm border-0" style="background: #fff;">
-            <h3 class="mb-3 fw-bold">🛠️ Media Tools</h3>
-            <p class="text-muted">Apply artistic filters to your photos.</p>
-            
-            <form method="POST" enctype="multipart/form-data">
-                
-                <div class="mb-4">
-                    <label class="form-label fw-bold">1. Upload Image 📸</label>
-                    <input type="file" name="file" class="form-control" accept="image/*" required>
+<section class="tools-shell">
+    <div class="tools-heading">
+        <span class="eyebrow">Media Tools</span>
+        <h1>Choose the medium. Shape the mood.</h1>
+    </div>
+
+    <div class="tool-choice-grid">
+        <button class="tool-choice active" type="button" data-panel="imagePanel">
+            <span class="choice-visual image-visual"></span>
+            <span class="choice-copy">
+                <strong>Image Art</strong>
+                <small>Filters, sketches, light, ink, color studies</small>
+            </span>
+        </button>
+        <button class="tool-choice" type="button" data-panel="voicePanel">
+            <span class="choice-visual voice-visual"><i></i><i></i><i></i><i></i></span>
+            <span class="choice-copy">
+                <strong>Voice Art</strong>
+                <small>Echo, reverb, and slowed sound texture</small>
+            </span>
+        </button>
+    </div>
+
+    <div class="tool-workspace">
+        <section id="imagePanel" class="tool-panel active">
+            <form id="imageForm" class="glass-tool" enctype="multipart/form-data">
+                <div>
+                    <span class="eyebrow">Image Art</span>
+                    <h2>Transform a still image</h2>
                 </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold">2. Choose Effect ✨</label>
-                    <div class="d-grid gap-2">
-                        <input type="radio" class="btn-check" name="filter_type" id="f1" value="grayscale" checked>
-                        <label class="btn btn-outline-dark text-start" for="f1">⚫⚪ Grayscale (B&W)</label>
-
-                        <input type="radio" class="btn-check" name="filter_type" id="f2" value="blur">
-                        <label class="btn btn-outline-dark text-start" for="f2">🌫️ Gaussian Blur</label>
-
-                        <input type="radio" class="btn-check" name="filter_type" id="f3" value="contour">
-                        <label class="btn btn-outline-dark text-start" for="f3">✏️ Edge Detection (Sketch)</label>
-
-                        <input type="radio" class="btn-check" name="filter_type" id="f4" value="invert">
-                        <label class="btn btn-outline-dark text-start" for="f4">🌗 Invert Colors (Negative)</label>
-                    </div>
+                <label class="studio-file" for="imageFile">
+                    <span class="upload-mark">IMG</span>
+                    <span>
+                        <strong id="imageFileName">Choose image</strong>
+                        <small>PNG, JPG, JPEG, or WEBP</small>
+                    </span>
+                    <input id="imageFile" type="file" name="file" accept="image/png,image/jpeg,image/webp" required>
+                </label>
+                <div class="filter-gallery">
+                    <label><input type="radio" name="filter_type" value="edge" checked><span data-filter="edge">Edge</span></label>
+                    <label><input type="radio" name="filter_type" value="sketch"><span data-filter="sketch">Sketch</span></label>
+                    <label><input type="radio" name="filter_type" value="invert"><span data-filter="invert">Invert</span></label>
+                    <label><input type="radio" name="filter_type" value="poster"><span data-filter="poster">Poster</span></label>
+                    <label><input type="radio" name="filter_type" value="solar"><span data-filter="solar">Solar</span></label>
+                    <label><input type="radio" name="filter_type" value="emboss"><span data-filter="emboss">Emboss</span></label>
+                    <label><input type="radio" name="filter_type" value="noir"><span data-filter="noir">Noir</span></label>
+                    <label><input type="radio" name="filter_type" value="dream"><span data-filter="dream">Dream</span></label>
+                    <label><input type="radio" name="filter_type" value="ink"><span data-filter="ink">Ink</span></label>
                 </div>
-
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Apply Filter 🚀</button>
+                <button type="submit">Apply Image Effect</button>
+                <p id="imageStatus" class="status-line" role="status" aria-live="polite"></p>
             </form>
-        </div>
-    </div>
+            <div id="imageResult" class="result-stage">
+                <span>Image output appears here.</span>
+            </div>
+        </section>
 
-    <div class="col-md-7">
-        <div class="artwork-display h-100 border rounded bg-light d-flex align-items-center justify-content-center flex-column p-3">
-            {% if image_filename %}
-                <h5 class="mb-3 badge bg-success fs-6">✅ Result Ready!</h5>
-                <img src="{{ url_for('static', filename='outputs/' + image_filename) }}" class="img-fluid shadow rounded" style="max-height: 500px;">
-                <br>
-                <a href="{{ url_for('static', filename='outputs/' + image_filename) }}" download class="btn btn-dark mt-3">
-                    Download Edited Image 📥
-                </a>
-            {% else %}
-                <div class="text-center text-muted opacity-50">
-                    <h1 style="font-size: 5rem;">📸</h1>
-                    <p>No image processed yet.</p>
+        <section id="voicePanel" class="tool-panel">
+            <form id="audioForm" class="glass-tool" enctype="multipart/form-data">
+                <div>
+                    <span class="eyebrow">Voice Art</span>
+                    <h2>Process a sound sample</h2>
                 </div>
-            {% endif %}
-        </div>
+                <label class="studio-file" for="audioFile">
+                    <span class="upload-mark">WAV</span>
+                    <span>
+                        <strong id="audioFileName">Choose audio</strong>
+                        <small>WAV recommended, MP3 requires ffmpeg</small>
+                    </span>
+                    <input id="audioFile" type="file" name="file" accept=".wav,.mp3,audio/wav,audio/mpeg" required>
+                </label>
+                <div class="segmented">
+                    <label><input type="radio" name="effect_type" value="reverb" checked><span>Reverb</span></label>
+                    <label><input type="radio" name="effect_type" value="echo"><span>Echo</span></label>
+                    <label><input type="radio" name="effect_type" value="slow"><span>Slow</span></label>
+                </div>
+                <button type="submit">Apply Voice Effect</button>
+                <p id="audioStatus" class="status-line" role="status" aria-live="polite"></p>
+            </form>
+            <div id="audioResult" class="result-stage">
+                <span>Audio output appears here.</span>
+            </div>
+        </section>
     </div>
-</div>
+</section>
+
+<script src="{{ url_for('static', filename='js/tools.js') }}"></script>
 {% endblock %}

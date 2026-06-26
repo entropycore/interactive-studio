@@ -166,7 +166,7 @@
             const artist = card.dataset.artist;
             const year = card.dataset.year;
             const museum = card.dataset.museum;
-            const description = card.dataset.description; // ✅ Grab description
+            const description = card.dataset.description; //  Grab description
             const movement = card.parentElement.dataset.movement || 'Art';
 
             // Populate Modal
@@ -178,7 +178,7 @@
             document.getElementById('modalMuseum').innerText = museum;
             document.getElementById('modalMovement').innerText = movement;
             
-            // ✅ Set Description
+            //  Set Description
             document.getElementById('modalDescription').innerText = description || "No description available.";
 
             // Update Buttons

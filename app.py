@@ -28,6 +28,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['OUTPUT_FOLDER'] = 'static/outputs'
 app.config['CHATS_FILE'] = 'data/chats.json'
+app.config['NOTES_FILE'] = 'data/creative_notes.json'
 app.secret_key = 'super_secret_key'
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -57,6 +58,22 @@ def save_chats(chats):
     with open(app.config['CHATS_FILE'], 'w') as f:
         json.dump(chats, f, indent=4)
 
+def allowed_file(filename, extensions):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in extensions
+
+def load_notes():
+    if not os.path.exists(app.config['NOTES_FILE']):
+        return []
+    with open(app.config['NOTES_FILE'], 'r', encoding='utf-8') as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            return []
+
+def save_notes(notes):
+    with open(app.config['NOTES_FILE'], 'w', encoding='utf-8') as f:
+        json.dump(notes, f, indent=2)
+
 # ==========================================
 #  ROUTES: DATA VISUALIZATION
 # ==========================================
@@ -68,27 +85,29 @@ def data_art():
 @app.route('/api/analyze-csv', methods=['POST'])
 def analyze_csv():
     if 'csv_file' not in request.files:
-        return jsonify({"success": False, "error": "No file uploaded"})
+        return jsonify({"success": False, "error": "Choose a CSV file before analyzing."}), 400
     
     file = request.files['csv_file']
     if file.filename == '':
-        return jsonify({"success": False, "error": "No filename"})
+        return jsonify({"success": False, "error": "The selected file has no filename."}), 400
+
+    if not allowed_file(file.filename, {'csv'}):
+        return jsonify({"success": False, "error": "Only CSV files are supported in Data Art."}), 400
 
     filename = secure_filename(file.filename)
+    filename = f"{uuid.uuid4().hex}_{filename}"
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
     
     try:
         analyzer = DataAnalyzer(app.config['UPLOAD_FOLDER'])
-       
-        if hasattr(analyzer, 'process_and_suggest'):
-            result = analyzer.process_and_suggest(filename)
-        else:
-            result = analyzer.get_csv_columns(filename) # Fallback logic
-            
-        return jsonify(result)
+
+        result = analyzer.process_and_suggest(filename)
+        status = 200 if result.get("success") else 422
+        return jsonify(result), status
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+        print(f"CSV analysis failed: {e}")
+        return jsonify({"success": False, "error": "The CSV could not be analyzed. Check formatting and try again."}), 500
 
 # ==========================================
 #  ROUTES: CHAT SYSTEM
@@ -247,31 +266,134 @@ def generative():
 
     return render_template('generative.html', saved_image=saved_image)
 
-@app.route('/tools', methods=['GET', 'POST'])
+@app.route('/tools')
 def tools():
-    image_filename = None
-    if request.method == 'POST':
-        if 'file' in request.files:
-            file = request.files['file']
-            if file.filename != '':
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                filter_type = request.form.get('filter_type')
-                if MediaProcessor:
-                    processor = MediaProcessor(app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER'])
-                    image_filename = processor.process_image(filename, filter_type)
-    return render_template('tools.html', image_filename=image_filename)
+    return render_template('tools.html')
 
-@app.route('/editor', methods=['GET', 'POST'])
-def editor():
-    note_path = os.path.join(app.config['OUTPUT_FOLDER'], 'my_notes.txt')
-    if request.method == 'POST':
-        with open(note_path, 'w', encoding='utf-8') as f: f.write(request.form.get('content'))
-        return render_template('editor.html', content=request.form.get('content'), saved=True)
-    content = ""
-    if os.path.exists(note_path):
-        with open(note_path, 'r', encoding='utf-8') as f: content = f.read()
-    return render_template('editor.html', content=content)
+@app.route('/api/media/image', methods=['POST'])
+def api_media_image():
+    if MediaProcessor is None:
+        return jsonify({"success": False, "error": "Media processing is unavailable."}), 503
+    if 'file' not in request.files:
+        return jsonify({"success": False, "error": "Upload an image first."}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"success": False, "error": "The selected image has no filename."}), 400
+    if not allowed_file(file.filename, {'png', 'jpg', 'jpeg', 'webp'}):
+        return jsonify({"success": False, "error": "Use a PNG, JPG, JPEG, or WEBP image."}), 400
+
+    filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    try:
+        processor = MediaProcessor(app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER'])
+        output = processor.process_image(filename, request.form.get('filter_type', 'edge'))
+        if not output:
+            return jsonify({"success": False, "error": "The uploaded file could not be opened as an image."}), 422
+        return jsonify({
+            "success": True,
+            "filename": output,
+            "url": url_for('static', filename=f'outputs/{output}')
+        })
+    except Exception as e:
+        print(f"Image processing failed: {e}")
+        return jsonify({"success": False, "error": "Image processing failed. Try a different file."}), 500
+
+@app.route('/api/media/audio', methods=['POST'])
+def api_media_audio():
+    if MediaProcessor is None:
+        return jsonify({"success": False, "error": "Media processing is unavailable."}), 503
+    if 'file' not in request.files:
+        return jsonify({"success": False, "error": "Upload an audio file first."}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"success": False, "error": "The selected audio file has no filename."}), 400
+    if not allowed_file(file.filename, {'wav', 'mp3'}):
+        return jsonify({"success": False, "error": "Use a WAV or MP3 audio file."}), 400
+
+    filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+    try:
+        processor = MediaProcessor(app.config['UPLOAD_FOLDER'], app.config['OUTPUT_FOLDER'])
+        output = processor.process_audio(filename, request.form.get('effect_type', 'reverb'))
+        return jsonify({
+            "success": True,
+            "filename": output,
+            "url": url_for('static', filename=f'outputs/{output}')
+        })
+    except Exception as e:
+        print(f"Audio processing failed: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ==========================================
+#  ROUTES: WORKSPACE DASHBOARD & EDITOR
+# ==========================================
+
+@app.route('/notes')
+def notes_dashboard():
+    # Render the dashboard with all saved workspaces
+    notes = load_notes()
+    return render_template('notes.html', notes=notes)
+
+@app.route('/editor', defaults={'note_id': None})
+@app.route('/editor/<note_id>')
+def editor(note_id):
+    # Redirect to dashboard if accessed without an ID
+    if not note_id:
+        return redirect(url_for('notes_dashboard'))
+        
+    # Load specific workspace data
+    notes = load_notes()
+    note = next((n for n in notes if n.get('id') == note_id), None)
+    if not note:
+        return redirect(url_for('notes_dashboard'))
+        
+    return render_template('editor.html', note=note)
+
+@app.route('/api/notes/create', methods=['POST'])
+def create_note():
+    # Initialize a new canvas
+    data = request.json
+    notes = load_notes()
+    note_id = uuid.uuid4().hex[:8]
+    
+    new_note = {
+        "id": note_id,
+        "title": data.get('title', 'Untitled Canvas'),
+        "content": "",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat()
+    }
+    
+    notes.insert(0, new_note)
+    save_notes(notes)
+    return jsonify({"success": True, "note_id": note_id})
+
+@app.route('/api/notes/delete/<note_id>', methods=['POST'])
+def delete_note(note_id):
+    # Delete a workspace by ID
+    notes = load_notes()
+    notes = [n for n in notes if n.get('id') != note_id]
+    save_notes(notes)
+    return jsonify({"success": True})
+
+@app.route('/api/notes/save/<note_id>', methods=['POST'])
+def save_note_content(note_id):
+    # Save DOM content of the active workspace
+    data = request.json
+    notes = load_notes()
+    
+    for note in notes:
+        if note.get('id') == note_id:
+            note['content'] = data.get('content', '')
+            note['updated_at'] = datetime.now().isoformat()
+            break
+            
+    save_notes(notes)
+    return jsonify({"success": True})
 
 @app.route('/assets')
 def assets():

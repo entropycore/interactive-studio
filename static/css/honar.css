@@ -1,4 +1,4 @@
-/* ✅ 1. THEME VARIABLES */
+/*  1. THEME VARIABLES */
 :root {
     --text-main: #000000;       
     --text-muted: #555555;      
@@ -59,10 +59,9 @@ body { overflow: hidden; }
 .chat-item-glass:hover .chat-options { opacity: 1; color: var(--text-main); }
 .chat-options:hover { color: var(--text-main); }
 
-/* 👇 هادي هي القائمة باش تطيح على اليمين (Droit) 👇 */
 .glass-dropdown {
     display: none; position: absolute; 
-    left: 80%; /* دفعناها لليمين */
+    left: 80%; 
     top: 35px;
     background: var(--bg-dropdown); border: 1px solid var(--border-color);
     border-radius: 8px; width: 120px; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.15); overflow: hidden;
@@ -130,7 +129,7 @@ body.dark-mode .bubble.bot { background: rgba(30, 30, 30, 0.6); }
 .custom-scroll::-webkit-scrollbar-thumb { background: rgba(125,125,125,0.3); border-radius: 10px; }
 .custom-scroll::-webkit-scrollbar-track { background: transparent; }
 
-/* 👇 الستايل ديال النافذة المخصصة (Custom Modal) اللي غتعوض Default Alert 👇 */
+
 .custom-modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px);

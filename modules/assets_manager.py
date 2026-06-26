@@ -36,7 +36,7 @@ def get_art_wallpapers():
                             "description": row.get('description', '')
                         })
             
-            print(f"✅ CSV Loaded Successfully: {len(wallpapers)} items (Cached).")
+            print(f" CSV Loaded Successfully: {len(wallpapers)} items (Cached).")
             
             # Save result to cache
             _CACHED_WALLPAPERS = wallpapers

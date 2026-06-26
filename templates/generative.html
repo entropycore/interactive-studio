@@ -326,9 +326,7 @@
 </div>
 
 <script>
-// ===============================================
-    // 🔥 ميزة الجودة العالية (High Resolution Scaling) 🔥
-    // ===============================================
+
     let HD_SCALE = 5; 
 
     let layers = []; 
@@ -617,7 +615,6 @@
         startDispX = pos.dispX; startDispY = pos.dispY;
         
         ctx.beginPath(); 
-        // ⬅️ زدت هادي باش الواتركولر والقلم يبداو الرسم نيشان من النقطة الأولى
         ctx.moveTo(startX, startY); 
         
         ctx.strokeStyle = currentTool === 'eraser' ? 'rgba(0,0,0,1)' : currentColor;
@@ -738,7 +735,6 @@
                 break;
                 
              case 'watercolor': 
-                // ⬅️ رجعناها للطريقة القديمة: مسار متصل باش اللون يتراكم و يعطي تأثير البلل
                 ctx.globalAlpha = 0.2; 
                 ctx.shadowBlur = size / 2; 
                 ctx.shadowColor = currentColor; 

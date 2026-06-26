@@ -11,20 +11,19 @@ class DataAnalyzer:
         
         try:
             # --- 1. SMART READ (Encoding & Separator) ---
-            # Njerbou ne9raw b UTF-8 w auto-detection dyal separator
+           
             try:
                 df = pd.read_csv(filepath, sep=None, engine='python', encoding='utf-8')
             except UnicodeDecodeError:
-                # Ila ma khdmch UTF-8, njerbou Latin-1 (common f Excel files)
+               
                 df = pd.read_csv(filepath, sep=None, engine='python', encoding='latin-1')
             
             # --- 2. CLEANING (Nettoyage Intelligent) ---
-            # Mss7 les lignes li khawyin 100%
+            
             df = df.dropna(how='all')
             
             # BLOCK: Gestion dyal NaNs (Valeurs Manquantes)
-            # Bla ma ndiro fillna(0) 3la kolchi, nbdlou ghir NaNs b None bach JSON y9belhom
-            # JSON ma kayfhmch NaN (Not a Number), kayfhm null.
+            
             df = df.replace({np.nan: None}) 
             
             # --- 3. DETECT TYPES ---
@@ -33,7 +32,7 @@ class DataAnalyzer:
             
             date_cols = []
             for col in cat_cols:
-                # Nchoufo wach l-column katchbh l date (sample sghir bach ikon code khfif)
+               
                 try:
                     # check if > 80% of non-null values are dates
                     sample = df[col].dropna().head(100)
@@ -46,7 +45,7 @@ class DataAnalyzer:
                 except:
                     pass
             
-            # Update cat_cols (7iyed dates mn categorical)
+            # Update cat_cols 
             cat_cols = [c for c in cat_cols if c not in date_cols]
 
             # --- 4. GENERATE SUGGESTIONS ---
@@ -70,7 +69,7 @@ class DataAnalyzer:
                     "title": f"Comparison of {num_cols[0]} by {cat_cols[0]}"
                 })
                 
-                # Pie Chart (ila kanou categories 9lal)
+                # Pie Chart 
                 unique_vals = df[cat_cols[0]].nunique()
                 if unique_vals <= 10:
                     suggestions.append({
@@ -103,12 +102,14 @@ class DataAnalyzer:
                 "suggestions": suggestions,
                 "meta": {
                     "rows": len(df),
+                    "columns": df.columns.tolist(),
                     "numeric_cols": num_cols,
                     "category_cols": cat_cols,
-                    "date_cols": date_cols
+                    "date_cols": date_cols,
+                    "preview_rows": chart_data[:5]
                 }
             }
 
         except Exception as e:
-            # 3tina error detailé bach n3rfou mnin lmochkil
+            
             return {"success": False, "error": f"Error processing file: {str(e)}"}

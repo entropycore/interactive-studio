@@ -5,9 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-    /* =========================================
-       1. VARIABLES & THEME
-       ========================================= */
+    /* Base Variables & Dark Mode */
     :root {
         --paper-bg: #ffffff;
         --dot-color: #e5e7eb;
@@ -29,22 +27,18 @@
     body { overflow: hidden; }
     .site-footer { display: none !important; }
 
-    /* =========================================
-       2. WORKSPACE CONTAINER
-       ========================================= */
+    /* Workspace Architecture */
     .studio-workspace {
         position: relative; 
         width: 100%; 
         height: calc(100vh - 110px); 
         margin-top: 10px; 
         background: transparent; 
-        overflow-y: auto; 
-        overflow-x: auto;
+        overflow: auto; 
         display: flex; 
         flex-direction: column;
         align-items: center; 
-        padding-top: 90px; 
-        padding-bottom: 150px;
+        padding: 90px 20px 150px;
     }
 
     #document-container {
@@ -52,7 +46,7 @@
         flex-direction: column;
         gap: 50px; 
         transform-origin: top center; 
-        transition: transform 0.1s ease-out;
+        transition: transform 0.15s ease-out;
     }
 
     .a4-paper {
@@ -87,9 +81,7 @@
     .draw-layer { position: absolute; top: 0; left: 0; z-index: 1; cursor: crosshair; }
     .dom-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
 
-    /* =========================================
-       3. FLOATING PANELS 
-       ========================================= */
+    /* UI Panels */
     .glass-pill {
         background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--glass-border); box-shadow: var(--shadow);
@@ -121,9 +113,7 @@
     .tool-btn:hover, .tool-btn.active { opacity: 1; background: var(--glass-border); transform: scale(1.1); }
     .tool-btn.active { color: var(--primary); }
 
-    /* =========================================
-       4. CREATIVE ELEMENTS (Text, Sticky, Stickers)
-       ========================================= */
+    /* Draggable Elements */
     .element-node {
         position: absolute; pointer-events: auto;
         border: 1px dashed transparent; transition: border 0.2s;
@@ -141,43 +131,23 @@
     }
     .node-sticky.blue { background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%); }
     .node-sticky.pink { background: linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%); }
-
     
     .node-sticker {
-        width: 150px; 
-        height: 150px;
-        padding: 5px;
-        resize: both;
-        overflow: hidden;
+        width: 150px; height: 150px; padding: 5px; resize: both; overflow: hidden;
         display: flex; align-items: center; justify-content: center;
     }
-    .node-sticker img {
-        width: 100%; height: 100%;
-        object-fit: contain;
-        pointer-events: none; 
-    }
+    .node-sticker img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
     
     .sticker-menu {
-        position: fixed;
-        top: 50%; left: 90px;
-        transform: translateY(-50%) scale(0.9);
-        width: 280px; max-height: 400px;
-        padding: 15px; gap: 10px;
-        flex-wrap: wrap; justify-content: center;
-        opacity: 0; pointer-events: none;
-        transition: all 0.2s ease;
-        overflow-y: auto;
-        border-radius: 20px;
+        position: fixed; top: 50%; left: 90px; transform: translateY(-50%) scale(0.9);
+        width: 280px; max-height: 400px; padding: 15px; gap: 10px;
+        flex-wrap: wrap; justify-content: center; opacity: 0; pointer-events: none;
+        transition: all 0.2s ease; overflow-y: auto; border-radius: 20px;
     }
-    .sticker-menu.active {
-        opacity: 1; pointer-events: auto;
-        transform: translateY(-50%) scale(1);
-    }
+    .sticker-menu.active { opacity: 1; pointer-events: auto; transform: translateY(-50%) scale(1); }
     .sticker-item {
-        width: 65px; height: 65px;
-        cursor: pointer; object-fit: contain;
-        transition: transform 0.2s;
-        border-radius: 10px;
+        width: 65px; height: 65px; cursor: pointer; object-fit: contain;
+        transition: transform 0.2s; border-radius: 10px;
     }
     .sticker-item:hover { transform: scale(1.15); background: rgba(0,0,0,0.05); }
 
@@ -203,8 +173,11 @@
     <div class="vr mx-2" style="background: var(--glass-border); width: 1px; height: 25px;"></div>
     
     <button class="tool-btn" onclick="deleteSelected()" title="Delete Element (Del)"><i class="fas fa-trash-alt" style="color: #ef4444;"></i></button>
-    <button class="tool-btn" onclick="downloadPDF()" title="Export PDF"><i class="fas fa-file-pdf" style="color: #0d6efd;"></i></button>
     <button class="tool-btn" onclick="clearAllPages()" title="Clear All Pages"><i class="fas fa-eraser" style="color: #f59e0b;"></i></button>
+    
+    <div class="vr mx-2" style="background: var(--glass-border); width: 1px; height: 25px;"></div>
+    <button class="tool-btn" id="save-btn" onclick="saveWorkspace()" title="Save Workspace" style="color: #0d6efd; opacity: 1;"><i class="fas fa-save"></i></button>
+    <button class="tool-btn" onclick="downloadPDF()" title="Export PDF"><i class="fas fa-file-pdf" style="color: #8b5cf6; opacity: 1;"></i></button>
 </div>
 
 <div class="glass-pill left-panel">
@@ -213,18 +186,18 @@
     <div class="my-2" style="width: 100%; height: 1px; background: var(--glass-border);"></div>
     <button class="tool-btn" onclick="addText()" title="Add Text"><i class="fas fa-font"></i></button>
     <button class="tool-btn" onclick="addSticky()" title="Add Sticky Note"><i class="fas fa-sticky-note" style="color: #eab308;"></i></button>
-    
     <button class="tool-btn" onclick="toggleStickerMenu()" title="Add Sticker"><i class="fas fa-smile" style="color: #ec4899;"></i></button>
 </div>
 
-<div class="glass-pill sticker-menu" id="sticker-menu">
-    </div>
-
+<div class="glass-pill sticker-menu" id="sticker-menu"></div>
 <div class="zoom-indicator" id="zoom-label">100%</div>
 
 <div class="studio-workspace custom-scroll" id="workspace-container">
     <div id="document-container">
-        </div>
+        {% if note and note.content %}
+            {{ note.content | safe }}
+        {% endif %}
+    </div>
 </div>
 
 <script>
@@ -236,9 +209,7 @@
         stickerMenu: document.getElementById('sticker-menu')
     };
 
-    // ==========================================
-    // 🌟 STICKERS LOGIC 🌟
-    // ==========================================
+    // Asset Loading
     const STICKER_ASSETS = [
         "https://cdn-icons-png.flaticon.com/512/763/763789.png", 
         "https://cdn-icons-png.flaticon.com/512/1828/1828884.png", 
@@ -250,135 +221,102 @@
         "https://cdn-icons-png.flaticon.com/512/3579/3579040.png"  
     ];
 
-    
     function initStickers() {
         STICKER_ASSETS.forEach(url => {
             const img = document.createElement('img');
-            img.src = url;
-            img.className = 'sticker-item';
+            img.src = url; img.className = 'sticker-item';
             img.onclick = () => addSticker(url);
             UI.stickerMenu.appendChild(img);
         });
     }
-    initStickers();
-
-    function toggleStickerMenu() {
-        UI.stickerMenu.classList.toggle('active');
-    }
+    
+    function toggleStickerMenu() { UI.stickerMenu.classList.toggle('active'); }
 
     function addSticker(url) {
         const node = createNode('node-sticker');
         node.contentEditable = false; 
-        
         const img = document.createElement('img');
-        img.src = url;
-        node.appendChild(img);
-        
+        img.src = url; node.appendChild(img);
         selectNode(node);
         setTool('cursor', document.querySelector('.left-panel .tool-btn[title="Select & Move"]'));
         UI.stickerMenu.classList.remove('active'); 
     }
 
+    // Page Architecture
+    function initWorkspace() {
+        if (UI.docContainer.children.length === 0) {
+            addNewPage();
+        } else {
+            State.pageIdCounter = document.querySelectorAll('.a4-paper').length;
+            document.querySelectorAll('.element-node').forEach(node => {
+                node.addEventListener('mousedown', (e) => handleNodeInteraction(e, node));
+            });
+            // Re-bind canvas contexts
+            document.querySelectorAll('.draw-layer').forEach(canvas => {
+                const img = new Image();
+                img.src = canvas.toDataURL(); // Fallback for lost canvas state if saved directly
+            });
+        }
+    }
 
-    // ==========================================
-    // 📄 PAGES MANAGEMENT 
-    // ==========================================
     function addNewPage() {
         State.pageIdCounter++;
         const pageId = `page-${State.pageIdCounter}`;
-        
         const pageDiv = document.createElement('div');
-        pageDiv.className = 'a4-paper';
-        pageDiv.id = pageId;
+        pageDiv.className = 'a4-paper'; pageDiv.id = pageId;
         pageDiv.innerHTML = `
-            <button class="delete-page-btn" onclick="removePage('${pageId}')" title="Delete this page">
-                <i class="fas fa-times"></i>
-            </button>
+            <button class="delete-page-btn" onclick="removePage('${pageId}')" title="Delete this page"><i class="fas fa-times"></i></button>
             <div class="page-number"></div>
-            <canvas class="draw-layer"></canvas>
+            <canvas class="draw-layer" width="794" height="1123"></canvas>
             <div class="dom-layer"></div>
         `;
-        
         UI.docContainer.appendChild(pageDiv);
-        
-        const canvas = pageDiv.querySelector('.draw-layer');
-        canvas.width = 794; 
-        canvas.height = 1123;
-        
         updatePageNumbers();
-        
         if(document.querySelectorAll('.a4-paper').length > 1) {
             pageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
     function removePage(pageId) {
-        const pages = document.querySelectorAll('.a4-paper');
-        if (pages.length <= 1) {
-            alert("You can't delete the last page! Use the Eraser icon to clear it instead. 🧹");
-            return;
-        }
-        
-        if(confirm("Are you sure you want to delete this page and everything on it?")) {
-            const page = document.getElementById(pageId);
-            if (page) {
-                page.remove();
-                updatePageNumbers();
-            }
+        if (document.querySelectorAll('.a4-paper').length <= 1) return alert("You cannot delete the only page.");
+        if(confirm("Delete this page entirely?")) {
+            document.getElementById(pageId).remove();
+            updatePageNumbers();
         }
     }
 
     function updatePageNumbers() {
-        const pages = document.querySelectorAll('.a4-paper');
-        pages.forEach((page, index) => {
+        document.querySelectorAll('.a4-paper').forEach((page, index) => {
             const numDiv = page.querySelector('.page-number');
             if(numDiv) numDiv.innerText = `Page ${index + 1}`;
         });
     }
 
-    addNewPage();
-
-    // ==========================================
-    // 🔍 ZOOM (Ctrl + Scroll)
-    // ==========================================
+    // Zoom Handling
     UI.workspace.addEventListener('wheel', function(e) {
         if (e.ctrlKey) {
             e.preventDefault(); 
-            
             const zoomAmount = e.deltaY < 0 ? 0.05 : -0.05;
-            let newZoom = State.zoom + zoomAmount;
-            
-            if (newZoom < 0.4) newZoom = 0.4;
-            if (newZoom > 2.0) newZoom = 2.0;
-
-            State.zoom = newZoom;
+            State.zoom = Math.max(0.4, Math.min(2.0, State.zoom + zoomAmount));
             UI.docContainer.style.transform = `scale(${State.zoom})`;
             UI.zoomLabel.innerText = Math.round(State.zoom * 100) + "%";
         }
     }, { passive: false });
 
-    // ==========================================
-    // 🛠️ TOOLS LOGIC
-    // ==========================================
+    // Interaction Tools
     function setTool(toolName, btn) {
         State.tool = toolName;
-        document.querySelectorAll('.left-panel .tool-btn:not([title^="Delete"]):not([title^="Export"]):not([title^="Clear"]):not([title^="Add New"])').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.left-panel .tool-btn:not([title^="Add Sticker"])').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
-        
-        document.querySelectorAll('.draw-layer').forEach(c => {
-            c.style.pointerEvents = (toolName === 'pen') ? 'auto' : 'none';
-        });
+        document.querySelectorAll('.draw-layer').forEach(c => c.style.pointerEvents = (toolName === 'pen') ? 'auto' : 'none');
         deselectAll();
     }
 
     function getActivePage() {
-        const pages = document.querySelectorAll('.a4-paper');
-        let active = pages[0];
-        pages.forEach(p => {
+        let active = document.querySelectorAll('.a4-paper')[0];
+        document.querySelectorAll('.a4-paper').forEach(p => {
             const rect = p.getBoundingClientRect();
-            if(rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-                active = p;
-            }
+            if(rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) active = p;
         });
         return active;
     }
@@ -387,17 +325,11 @@
         const node = document.createElement('div');
         node.className = `element-node ${type}`;
         node.contentEditable = true; 
-        
-        // كنحطوها فالوسط باش تبان لليوزر مزيان
         const centerX = UI.workspace.scrollLeft / State.zoom + 250;
         const centerY = UI.workspace.scrollTop / State.zoom + 150;
-        node.style.left = centerX + 'px';
-        node.style.top = centerY + 'px';
-        
+        node.style.left = centerX + 'px'; node.style.top = centerY + 'px';
         node.addEventListener('mousedown', (e) => handleNodeInteraction(e, node));
-        
-        const activePage = getActivePage();
-        activePage.querySelector('.dom-layer').appendChild(node);
+        getActivePage().querySelector('.dom-layer').appendChild(node);
         return node;
     }
 
@@ -425,20 +357,12 @@
 
     function handleNodeInteraction(e, node) {
         if (State.tool !== 'cursor') return;
-        
-        
         const rect = node.getBoundingClientRect();
-        if (e.clientX > rect.right - 20 && e.clientY > rect.bottom - 20 && node.classList.contains('node-sticker')) {
-            return; 
-        }
+        if (e.clientX > rect.right - 20 && e.clientY > rect.bottom - 20 && node.classList.contains('node-sticker')) return; 
 
         selectNode(node);
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        initialLeft = node.offsetLeft;
-        initialTop = node.offsetTop;
-        
+        isDragging = true; startX = e.clientX; startY = e.clientY;
+        initialLeft = node.offsetLeft; initialTop = node.offsetTop;
         document.addEventListener('mousemove', onDrag);
         document.addEventListener('mouseup', stopDrag);
     }
@@ -459,8 +383,7 @@
 
     function selectNode(node) {
         deselectAll();
-        State.selectedNode = node;
-        node.classList.add('selected');
+        State.selectedNode = node; node.classList.add('selected');
         if(node.contentEditable === "true") node.focus();
     }
 
@@ -485,75 +408,85 @@
         State.selectedNode.style.fontSize = document.getElementById('prop-size').value;
     }
 
-    function deleteSelected() {
-        if (State.selectedNode) { State.selectedNode.remove(); State.selectedNode = null; }
-    }
+    function deleteSelected() { if (State.selectedNode) { State.selectedNode.remove(); State.selectedNode = null; } }
 
     function clearAllPages() {
-        if(!confirm("Are you sure you want to clear ALL pages?")) return;
-        document.querySelectorAll('.draw-layer').forEach(canvas => {
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-        });
-        document.querySelectorAll('.dom-layer').forEach(layer => {
-            layer.innerHTML = '';
-        });
+        if(!confirm("Clear ALL pages?")) return;
+        document.querySelectorAll('.draw-layer').forEach(canvas => canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height));
+        document.querySelectorAll('.dom-layer').forEach(layer => layer.innerHTML = '');
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Delete' && State.selectedNode && document.activeElement !== State.selectedNode) {
-            deleteSelected();
-        }
+        if (e.key === 'Delete' && State.selectedNode && document.activeElement !== State.selectedNode) deleteSelected();
     });
 
-    // ==========================================
-    // 🖌️ DRAWING ON MULTIPLE PAGES
-    // ==========================================
-    let painting = false;
-    let currentCtx = null;
+    // Canvas Drawing
+    let painting = false; let currentCtx = null;
 
     UI.docContainer.addEventListener('mousedown', (e) => {
         if (State.tool !== 'pen') return;
         if (e.target.classList.contains('draw-layer')) {
-            painting = true;
-            currentCtx = e.target.getContext('2d');
-            currentCtx.lineWidth = 3;
-            currentCtx.lineCap = 'round';
+            painting = true; currentCtx = e.target.getContext('2d');
+            currentCtx.lineWidth = 3; currentCtx.lineCap = 'round';
             currentCtx.strokeStyle = document.getElementById('prop-color').value;
-            
             const rect = e.target.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / State.zoom;
-            const y = (e.clientY - rect.top) / State.zoom;
-            
             currentCtx.beginPath();
-            currentCtx.moveTo(x, y);
+            currentCtx.moveTo((e.clientX - rect.left) / State.zoom, (e.clientY - rect.top) / State.zoom);
         }
     });
 
     document.addEventListener('mousemove', (e) => {
         if (!painting || !currentCtx) return;
-        
         const rect = currentCtx.canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / State.zoom;
-        const y = (e.clientY - rect.top) / State.zoom;
-
-        currentCtx.lineTo(x, y);
+        currentCtx.lineTo((e.clientX - rect.left) / State.zoom, (e.clientY - rect.top) / State.zoom);
         currentCtx.stroke();
     });
 
     document.addEventListener('mouseup', () => {
-        if(painting && currentCtx) {
-            currentCtx.beginPath();
-            painting = false;
-            currentCtx = null;
-        }
+        if(painting && currentCtx) { currentCtx.beginPath(); painting = false; currentCtx = null; }
     });
 
-    // ==========================================
-    // 📄 PDF EXPORT
-    // ==========================================
+    // Save Logic
+    function saveWorkspace() {
+        const noteId = "{{ note.id if note else '' }}";
+        if (!noteId) { alert("Save error: Cannot find workspace ID."); return; }
+        
+        const btn = document.getElementById('save-btn');
+        const icon = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        // Convert canvases to base64 images so drawings are saved correctly in the DOM
+        document.querySelectorAll('.draw-layer').forEach(canvas => {
+            canvas.style.backgroundImage = `url(${canvas.toDataURL()})`;
+        });
+
+        const contentData = UI.docContainer.innerHTML;
+
+        fetch(`/api/notes/save/${noteId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ content: contentData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.innerHTML = icon;
+            if(data.success) {
+                const toast = document.createElement('div');
+                toast.innerText = "Workspace saved successfully!";
+                toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:#10b981; color:white; padding:10px 20px; border-radius:5px; z-index:9999;";
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            }
+        })
+        .catch(err => {
+            btn.innerHTML = icon;
+            alert("Connection error while saving.");
+        });
+    }
+
+    // PDF Logic
     const pdfOpt = {
-        margin: [0, 0],
-        filename: 'GenStudio_Document.pdf',
+        margin: [0, 0], filename: 'GenStudio_Document.pdf',
         image: { type: 'jpeg', quality: 1 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
         jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' },
@@ -564,12 +497,14 @@
         deselectAll(); 
         const currentZ = State.zoom;
         UI.docContainer.style.transform = `scale(1)`; 
-        
         setTimeout(() => {
             html2pdf().set(pdfOpt).from(UI.docContainer).save().then(() => {
                 UI.docContainer.style.transform = `scale(${currentZ})`; 
             });
         }, 200);
     }
+
+    initStickers();
+    initWorkspace();
 </script>
 {% endblock %}
