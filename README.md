@@ -1,3 +1,10 @@
+##  Équipe de développement
+
+Ce projet a été réalisé par des étudiants en 1ère année du cycle d'ingénieur en Génie Informatique à l'ENSA Tanger :
+- Mohamed Zaaboul  - Yahya Serroukh  - Fatima Ben Brahim  - Kaoutar Bendidi
+
+Supervisé par : Pr. Sara Ibn El Ahrache
+
 # GEN-STUDIO
 
 GEN-STUDIO est une application web Flask dédiée à la création artistique, à la visualisation de données et à l’assistance IA. Le projet permet de générer des œuvres, explorer une galerie, analyser des fichiers CSV et discuter avec un assistant nommé Honar.
@@ -17,6 +24,17 @@ GEN-STUDIO est une application web Flask dédiée à la création artistique, à
 - Docker Desktop installé et lancé
 - Python 3.10 ou plus (si vous voulez lancer le projet sans Docker)
 - pip
+
+## ⚠️ ÉTAPE 1 : Configuration de la clé API (IMPORTANT)
+
+Avant de lancer le projet, il est nécessaire de configurer la clé API pour que l'assistant IA (Honar) puisse fonctionner.
+
+1. Ouvrez le document **`GITHUB-LINK`** qui est fourni dans le dossier de rendu (Google Drive).
+2. Copiez la clé API Gemini qui s'y trouve.
+3. Créez un fichier nommé `.env` à la racine de ce projet et collez la clé comme ceci :
+
+```env
+GEMINI_API_KEY=la_cle_copiee_ici
 
 ## Démarrage rapide avec Docker (recommandé)
 
